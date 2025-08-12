@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     //interaction variables
     [SerializeField] private float _interactionDistance = 2f;
     [SerializeField] private float _interactionSphereRadius = 0.5f;
+    [SerializeField] private float _interactionHeight = 1f; 
     [SerializeField] private TextMeshProUGUI _interactionPromptText;
 
     private NavMeshAgent _agent;
@@ -52,7 +53,8 @@ public class PlayerController : MonoBehaviour
 
     private void HandleInteractionCheck()
     {
-        if (Physics.SphereCast(transform.position, _interactionSphereRadius, transform.forward, out RaycastHit hit, _interactionDistance))
+        Vector3 interactionOrigin = transform.position + Vector3.up * _interactionHeight;
+        if (Physics.SphereCast(interactionOrigin, _interactionSphereRadius, transform.forward, out RaycastHit hit, _interactionDistance))
         {
             if (hit.collider.TryGetComponent<IInteractable>(out IInteractable interactable))
             {
@@ -132,13 +134,16 @@ public class PlayerController : MonoBehaviour
         Vector3 cameraForward = _mainCamera.transform.forward;
         cameraForward.y = 0;
         cameraForward.Normalize();
+
         Vector3 cameraRight = _mainCamera.transform.right;
         cameraRight.y = 0;
         cameraRight.Normalize();
 
         Vector3 moveDirection = (cameraForward * vertical + cameraRight * horizontal);
+        moveDirection = Vector3.ClampMagnitude(moveDirection, 1f);
+        Vector3 desiredVelocity = moveDirection * _moveSpeed;
 
-        _agent.Move(moveDirection * _moveSpeed * Time.deltaTime);
+        _agent.velocity = desiredVelocity;
 
         if (moveDirection != Vector3.zero)
         {
@@ -151,7 +156,7 @@ public class PlayerController : MonoBehaviour
     {
         Gizmos.color = Color.red;
 
-        Vector3 startPoint = transform.position;
+        Vector3 startPoint = transform.position + Vector3.up * _interactionHeight;
         Vector3 endPoint = startPoint + transform.forward * _interactionDistance;
         Gizmos.DrawWireSphere(startPoint, _interactionSphereRadius);
 
