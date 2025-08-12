@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4877094410718608484}
   - component: {fileID: 3092030699409888418}
   - component: {fileID: 4912270380217739487}
+  - component: {fileID: 8934891461935454347}
   - component: {fileID: 1101782901266893881}
   - component: {fileID: 734941178159170386}
   - component: {fileID: 6045577663465965467}
@@ -87,6 +88,21 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8934891461935454347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 273863801049777904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80feda01f56aaaa49b8e8dabb7460ea7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: 1991118600089642732}
+  _agent: {fileID: 6045577663465965467}
+  _animationSmoothFactor: 10
 --- !u!114 &1101782901266893881
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,8 +121,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   _behaviorType: 0
-  _patrolSpeed: 3.5
-  _chaseSpeed: 7
+  _patrolSpeed: 2
+  _chaseSpeed: 3.5
   _catchDistance: 1.5
   _idleWaitTime: 3
   _viewRadius: 10
@@ -227,11 +243,20 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 76b407c6edf5dcf438c6575370d30775, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 7e71923bbb0b8e5468381f627ac141e9, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7e71923bbb0b8e5468381f627ac141e9, type: 3}
+--- !u!95 &1991118600089642732 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 7e71923bbb0b8e5468381f627ac141e9, type: 3}
+  m_PrefabInstance: {fileID: 5389483261485685629}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5566997820520135830 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7e71923bbb0b8e5468381f627ac141e9, type: 3}

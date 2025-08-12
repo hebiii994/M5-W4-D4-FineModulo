@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7343999838251390307}
   - component: {fileID: 1317208899958344074}
   - component: {fileID: 4418116944418208823}
+  - component: {fileID: 6301147637693911002}
   - component: {fileID: 5157457461063443741}
   - component: {fileID: 8781746460850586408}
   - component: {fileID: 3605224262455437324}
@@ -87,6 +88,21 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &6301147637693911002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4192752170203708707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80feda01f56aaaa49b8e8dabb7460ea7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: 8398710963897552315}
+  _agent: {fileID: 3605224262455437324}
+  _animationSmoothFactor: 10
 --- !u!114 &5157457461063443741
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -101,8 +117,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _waypoints: []
   _behaviorType: 1
-  _patrolSpeed: 3.5
-  _chaseSpeed: 7
+  _patrolSpeed: 2
+  _chaseSpeed: 3.5
   _catchDistance: 1.5
   _idleWaitTime: 3
   _viewRadius: 10
@@ -215,6 +231,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 76b407c6edf5dcf438c6575370d30775, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 7e71923bbb0b8e5468381f627ac141e9, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -223,5 +243,10 @@ PrefabInstance:
 --- !u!4 &2480951003742410689 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7e71923bbb0b8e5468381f627ac141e9, type: 3}
+  m_PrefabInstance: {fileID: 2730486178498900010}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &8398710963897552315 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 7e71923bbb0b8e5468381f627ac141e9, type: 3}
   m_PrefabInstance: {fileID: 2730486178498900010}
   m_PrefabAsset: {fileID: 0}
