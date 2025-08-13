@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private MovementMode _currentMode = MovementMode.PointAndClick;
     [SerializeField] private float _moveSpeed = 5f;
+    public bool CanMove { get; set; } = true;
 
     //interaction variables
     [SerializeField] private float _interactionDistance = 2f;
@@ -23,6 +24,7 @@ public class PlayerController : MonoBehaviour
 
     private NavMeshAgent _agent;
     private Camera _mainCamera;
+    private Rigidbody _rb;
 
     private IInteractable _focusedInteractable;
 
@@ -30,6 +32,10 @@ public class PlayerController : MonoBehaviour
     {
         _agent = GetComponent<NavMeshAgent>();
         _mainCamera = Camera.main;
+        _rb = GetComponent<Rigidbody>();
+        _rb.interpolation = RigidbodyInterpolation.None;
+        _rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        _rb.isKinematic = true;
     }
 
     private void Start()
@@ -44,6 +50,12 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (!CanMove)
+        {
+            StopMovement();
+            return;
+        }
+
         HandleInput();
         HandleMovement();
         HandleInteractionCheck();
@@ -104,6 +116,12 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMovement()
     {
+        if (!CanMove)
+        {
+            _agent.velocity = Vector3.zero;
+            return; 
+        }
+
         switch (_currentMode)
         {
             case MovementMode.PointAndClick:
@@ -150,6 +168,12 @@ public class PlayerController : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
         }
+    }
+    public void StopMovement()
+    {
+
+        _agent.velocity = Vector3.zero;
+        _agent.ResetPath();
     }
 
     private void OnDrawGizmosSelected()

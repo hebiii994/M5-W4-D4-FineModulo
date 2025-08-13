@@ -12,10 +12,12 @@ public class IdleState : GuardBaseState
 
     public override void OnEnter()
     {
-        _guard.Agent.updateRotation = false;
+        _guard.Agent.enabled = true;
+        _guard.Agent.updateRotation = true;
         _guard.Agent.SetDestination(_guard.StartingPosition);
-        _targetRotation = _guard.StartingRotation;
+        _guard.Agent.speed = _guard.PatrolSpeed;
         _waitTimer = _guard.IdleWaitTime;
+        _targetRotation = _guard.StartingRotation;
     }
 
     public override void OnUpdate()
@@ -25,24 +27,29 @@ public class IdleState : GuardBaseState
             _guard.ChangeState(_guard.chaseState);
             return;
         }
-        if (!_guard.Agent.pathPending && _guard.Agent.remainingDistance < 0.5f)
+
+        if (!_guard.Agent.pathPending && _guard.Agent.remainingDistance <= _guard.Agent.stoppingDistance)
         {
-            _guard.transform.rotation = Quaternion.RotateTowards(_guard.transform.rotation,_targetRotation,_guard.Agent.angularSpeed * Time.deltaTime);
+
+            _guard.Agent.updateRotation = false;
+
+            _guard.transform.rotation = Quaternion.RotateTowards( _guard.transform.rotation,_targetRotation,_guard.Agent.angularSpeed * Time.deltaTime);
+
             if (Quaternion.Angle(_guard.transform.rotation, _targetRotation) < 1f)
             {
                 _waitTimer -= Time.deltaTime;
                 if (_waitTimer <= 0)
                 {
-
                     float randomYAngle = Random.Range(0f, 360f);
                     _targetRotation = Quaternion.Euler(0, randomYAngle, 0);
                     _waitTimer = _guard.IdleWaitTime;
                 }
             }
-            
         }
-
-
+        else
+        {
+            _guard.Agent.updateRotation = true;
+        }
     }
 
     public override void OnExit()
