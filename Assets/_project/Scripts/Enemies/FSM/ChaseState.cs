@@ -9,7 +9,8 @@ public class ChaseState : GuardBaseState
     {
         _guard.Agent.updateRotation = true;
         _guard.Agent.speed = _guard.ChaseSpeed;
-        
+        AlertManager.TriggerAlert();
+        _guard.BroadcastAlert();
     }
     public override void OnUpdate()
     {
@@ -21,7 +22,8 @@ public class ChaseState : GuardBaseState
         {
             // Insegui ma non fare danno, aspetta che finisca la sua combo
         }
-        else {
+        else 
+        {
             float distanceToPlayer = Vector3.Distance(_guard.transform.position, _guard.PlayerTransform.position);
 
             if (distanceToPlayer < _guard.CatchDistance && Time.time - _guard.LastDamageTime > _guard.AttackRate)
@@ -36,7 +38,8 @@ public class ChaseState : GuardBaseState
                 return;
             }
         }
-            
+
+        AlertManager.ReportPlayerSeen();
 
         _guard.Agent.SetDestination(_guard.PlayerTransform.position);
         if (!_guard.IsPlayerInSight())
@@ -49,6 +52,5 @@ public class ChaseState : GuardBaseState
     public override void OnExit()
     {
          _guard.Agent.speed = _guard.PatrolSpeed;
-
     }
 }

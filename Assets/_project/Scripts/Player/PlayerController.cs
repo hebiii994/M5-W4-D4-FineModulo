@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private MovementMode _currentMode = MovementMode.PointAndClick;
     [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private PlayerCombat _playerCombat;
     public bool CanMove { get; set; } = true;
 
     //interaction variables
@@ -22,11 +24,23 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _interactionHeight = 1f; 
     [SerializeField] private TextMeshProUGUI _interactionPromptText;
 
+    //private variables
     private NavMeshAgent _agent;
     private Camera _mainCamera;
     private Rigidbody _rb;
-
     private IInteractable _focusedInteractable;
+
+    //wall press variables
+    [SerializeField] private LayerMask _wallLayer;
+    [SerializeField] private float _wallCheckDistance = 1f;
+    [SerializeField] private float _wallSlideSpeed = 8f;
+    [SerializeField] private float _characterShoulderOffset = 0.4f;
+    [SerializeField] private GameObject _wallPressCamera;
+    private Coroutine _wallCoroutine;
+    private bool _isAgainstWall = false;
+    private Vector3 _wallNormal;
+
+    public bool IsAgainstWall => _isAgainstWall;
 
     private void Awake()
     {
@@ -50,18 +64,86 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (!CanMove)
+        if (_playerCombat != null && _playerCombat.IsAttacking)
         {
             StopMovement();
             return;
         }
-
-        HandleInput();
-        HandleMovement();
-        HandleInteractionCheck();
-        
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            ToggleWallMode();
+        }
+        if (!_isAgainstWall)
+        {
+            HandleInput();
+            HandleMovement();
+            HandleInteractionCheck();
+        }
 
     }
+
+    private void ToggleWallMode()
+    {
+        if (_isAgainstWall)
+        {
+            if (_wallCoroutine != null) StopCoroutine(_wallCoroutine);
+            _isAgainstWall = false;
+            _agent.enabled = true; 
+            if (_wallPressCamera != null) _wallPressCamera.SetActive(false);
+        }
+        else if (CheckForWall(out RaycastHit hit))
+        {
+            _wallNormal = hit.normal;
+            _wallCoroutine = StartCoroutine(WallPressRoutine(hit));
+        }
+    }
+    private IEnumerator WallPressRoutine(RaycastHit wallHit)
+    {
+        _isAgainstWall = true;
+        _agent.velocity = Vector3.zero;
+        _agent.enabled = false;
+        if (_wallPressCamera != null) _wallPressCamera.SetActive(true);
+
+        transform.rotation = Quaternion.LookRotation(wallHit.normal);
+        transform.position = new Vector3(wallHit.point.x, transform.position.y, wallHit.point.z) + wallHit.normal * 0.3f;
+
+        while (_isAgainstWall)
+        {
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                if (_playerCombat != null && !_playerCombat.IsAttacking)
+                {
+                    _playerCombat.KnockOnWall();
+                }
+            }
+
+            float horizontalInput = Input.GetAxis("Horizontal");
+            if (Mathf.Abs(horizontalInput) > 0.1f)
+            {
+                Vector3 movementDirection = Vector3.Cross(_wallNormal, Vector3.up);
+                Vector3 moveDelta = movementDirection * horizontalInput * _wallSlideSpeed * Time.deltaTime;
+                Vector3 nextPosition = transform.position + moveDelta;
+                Vector3 centerCheckOrigin = nextPosition + Vector3.up * 0.5f;
+                bool hasWallInFront = Physics.Raycast(centerCheckOrigin, -_wallNormal, 0.5f, _wallLayer);
+                Vector3 shoulderOffset = movementDirection * Mathf.Sign(horizontalInput) * _characterShoulderOffset;
+                Vector3 leadingEdgeCheckOrigin = centerCheckOrigin + shoulderOffset;
+                bool hasWallOnMovingSide = Physics.Raycast(centerCheckOrigin + shoulderOffset, -_wallNormal, 0.5f, _wallLayer);
+
+                if (hasWallInFront && hasWallOnMovingSide)
+                {
+                    _rb.MovePosition(nextPosition);
+                }
+            }
+
+            yield return null; 
+        }
+    }
+    private bool CheckForWall(out RaycastHit hitInfo)
+    {
+        Vector3 checkOrigin = transform.position + Vector3.up * _interactionHeight;
+        return Physics.Raycast(checkOrigin, transform.forward, out hitInfo, _wallCheckDistance, _wallLayer);
+    }
+
 
     private void HandleInteractionCheck()
     {
@@ -171,9 +253,15 @@ public class PlayerController : MonoBehaviour
     }
     public void StopMovement()
     {
-
+        if (!_agent.enabled)
+        {
+            return; 
+        }
         _agent.velocity = Vector3.zero;
-        _agent.ResetPath();
+        if (_agent.hasPath) 
+        {
+            _agent.ResetPath();
+        }
     }
 
     private void OnDrawGizmosSelected()

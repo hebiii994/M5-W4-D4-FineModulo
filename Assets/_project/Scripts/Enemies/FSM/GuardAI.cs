@@ -1,5 +1,6 @@
-using Unity.IO.LowLevel.Unsafe;
+using System;
 using System.Collections;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
@@ -8,16 +9,13 @@ public class GuardAI : MonoBehaviour
 {
     //reference variables
     [SerializeField] private Transform[] _waypoints;
-    [SerializeField] private Transform _playerTarget; 
+    [SerializeField] private Transform _playerTarget;
 
+    //properties 
     public Transform PlayerTarget { get; private set; }
-
     public Transform[] Waypoints => _waypoints;
-
     public NavMeshAgent Agent { get; private set; }
     public Transform PlayerTransform { get; private set; }
-   
-
     public Animator Animator { get; private set; }
 
     //Waypoint patrol variables
@@ -28,8 +26,9 @@ public class GuardAI : MonoBehaviour
     [SerializeField] private float _patrolSpeed = 3.5f;
     [SerializeField] private float _chaseSpeed = 7f;
     [SerializeField] private float _catchDistance = 1.5f;
-    public BehaviorType CurrentBehaviorType => _behaviorType;
 
+    //properties for patrol and chase speeds
+    public BehaviorType CurrentBehaviorType => _behaviorType;
     public float PatrolSpeed => _patrolSpeed;
     public float ChaseSpeed => _chaseSpeed;
     public float CatchDistance => _catchDistance;
@@ -54,6 +53,10 @@ public class GuardAI : MonoBehaviour
     [SerializeField] private VisionConeRenderer _visionConeRenderer;
     public float SearchTime => _searchTime;
 
+    //alarm variables
+    [SerializeField] private float _alertRadius = 15f;
+    public static event Action<Vector3> OnGuardAlerted;
+
     //miscellaneous variables
     [SerializeField] private float _stopDistance = 1.5f; 
     [SerializeField] private float _damageAmount = 25;
@@ -75,6 +78,18 @@ public class GuardAI : MonoBehaviour
     public FallState fallState;
     public SideHitState sideHitState;
     public LookAroundState lookAroundState;
+    public GetUpState getUpState;
+    public AlertState alertState;
+
+    private void OnEnable()
+    {
+        OnGuardAlerted += HandleAlert;
+    }
+
+    private void OnDisable()
+    {
+        OnGuardAlerted -= HandleAlert;
+    }
 
     private void Awake()
     {
@@ -90,8 +105,11 @@ public class GuardAI : MonoBehaviour
         fallState = new FallState(this);
         sideHitState = new SideHitState(this);
         lookAroundState = new LookAroundState(this);
+        getUpState = new GetUpState(this);
+        alertState = new AlertState(this);
     }
    
+
     private void Start()
     {
         _visionConeRenderer.ViewAngle = _viewAngle;
@@ -173,6 +191,26 @@ public class GuardAI : MonoBehaviour
         }
     }
 
+    private void HandleAlert(Vector3 alertPosition)
+    {
+        if (_currentState == chaseState || _currentState == fallState || _currentState == sideHitState || _currentState == getUpState)
+        {
+            return;
+        }
+        if (Vector3.Distance(transform.position, alertPosition) <= _alertRadius)
+        {
+            Debug.Log(gameObject.name + " ha sentito l'allarme!");
+
+            LastKnownPlayerPosition = alertPosition;
+
+            ChangeState(alertState);
+        }
+    }
+    public void BroadcastAlert()
+    {
+        Debug.Log(gameObject.name + " sta lanciando un allarme a tutte le altre unità!");
+        OnGuardAlerted?.Invoke(PlayerTransform.position);
+    }
 
     public void GetHit(int comboStep)
     {
@@ -228,6 +266,26 @@ public class GuardAI : MonoBehaviour
         {
             ChangeState(patrolState);
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Noise"))
+        {
+            if (_currentState != chaseState && _currentState != fallState && _currentState != sideHitState)
+            {
+                Debug.Log(gameObject.name + " ha sentito un rumore!");
+                LastKnownPlayerPosition = other.transform.position;
+                ChangeState(searchingState);
+            }
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        // Disegna la sfera di allarme per debug
+        Gizmos.color = new Color(1f, 0.5f, 0f, 0.2f); 
+        Gizmos.DrawSphere(transform.position, _alertRadius);
     }
 
     private void OnDrawGizmosSelected()

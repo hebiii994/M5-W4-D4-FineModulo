@@ -1152,6 +1152,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7295555225043671749}
   - component: {fileID: 5272773164570393653}
+  - component: {fileID: 5006551289792500485}
   - component: {fileID: 2479977745331171108}
   - component: {fileID: 2156099287227635964}
   - component: {fileID: 2595210560101396074}
@@ -1205,6 +1206,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5006551289792500485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5713855829015498471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95c68f7a78fa79849896d56bf8d7911f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxHealth: 100
+  _healthSlider: {fileID: 0}
 --- !u!114 &2479977745331171108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1219,10 +1234,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _currentMode: 1
   _moveSpeed: 4
+  _playerCombat: {fileID: 2595210560101396074}
   _interactionDistance: 1.5
   _interactionSphereRadius: 0.5
   _interactionHeight: 1
   _interactionPromptText: {fileID: 0}
+  _wallLayer:
+    serializedVersion: 2
+    m_Bits: 2048
+  _wallCheckDistance: 1
+  _wallSlideSpeed: 8
+  _wallPressCamera: {fileID: 0}
 --- !u!114 &2156099287227635964
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1238,6 +1260,7 @@ MonoBehaviour:
   _animator: {fileID: 5272773164570393653}
   _agent: {fileID: 6753501202520528956}
   _animationSmoothFactor: 10
+  _playerController: {fileID: 2479977745331171108}
 --- !u!114 &2595210560101396074
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1279,7 +1302,7 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 0
 --- !u!136 &7078128861753060961
 CapsuleCollider:
   m_ObjectHideFlags: 0

@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private TextMeshProUGUI _alertTimerText;
     public static GameManager Instance { get; private set; }
 
     private void Awake()
@@ -17,6 +19,36 @@ public class GameManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        if (_alertTimerText != null)
+        {
+            _alertTimerText.gameObject.SetActive(false);
+        }
+    }
+    private void Update()
+    {
+        AlertManager.Tick(Time.deltaTime);
+        UpdateAlertUI();
+    }
+    private void UpdateAlertUI()
+    {
+        if (_alertTimerText == null) return; 
+
+        
+        if (AlertManager.IsAlertActive)
+        {
+            _alertTimerText.gameObject.SetActive(true);
+            int timeLeft = Mathf.CeilToInt(AlertManager.AlertTimer);
+            _alertTimerText.text = $"ALERT\n{timeLeft}";
+        }
+
+        else
+        {
+            _alertTimerText.gameObject.SetActive(false);
         }
     }
 

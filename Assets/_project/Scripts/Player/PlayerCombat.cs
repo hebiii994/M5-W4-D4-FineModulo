@@ -5,6 +5,7 @@ public class PlayerCombat : MonoBehaviour
 {
     [SerializeField] private Animator _animator;
     [SerializeField] private PlayerController _playerController;
+    [SerializeField] private GameObject _noisePrefab;
 
 
     [SerializeField] private float _comboResetTime = 1.0f;
@@ -97,11 +98,23 @@ public class PlayerCombat : MonoBehaviour
 
             if (hit.TryGetComponent(out GuardAI guard))
             {
+                guard.LastKnownPlayerPosition = transform.position;
                 guard.GetHit(_comboStep);
                 return;
             }
         }
-
-
     }
+
+    public void KnockOnWall()
+    {
+
+        if (Physics.Raycast(transform.position, -transform.forward, out RaycastHit hit, 2f))
+        {
+            Instantiate(_noisePrefab, hit.point, Quaternion.identity);
+
+            _animator.SetTrigger("Knock");
+            Debug.Log("Knock sul muro");
+        }
+    }
+
 }

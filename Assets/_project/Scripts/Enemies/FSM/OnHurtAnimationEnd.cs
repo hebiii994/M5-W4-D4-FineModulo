@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class OnHurtAnimationEnd : StateMachineBehaviour
 {
-    [SerializeField] private bool _isEndOfSequence = false;
+
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         animator.SetInteger("HitType", 0);
@@ -12,18 +12,24 @@ public class OnHurtAnimationEnd : StateMachineBehaviour
     }
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        Debug.Log("OnStateExit: Uscendo dallo stato di danno. Cambio stato FSM a Searching...");
+        GuardAI guard = animator.GetComponentInParent<GuardAI>();
+        if (guard == null) return;
 
-
-        if (_isEndOfSequence)
+        if (stateInfo.IsName("Fall")) 
         {
-            GuardAI guard = animator.GetComponentInParent<GuardAI>();
-            if (guard != null)
-            {
-                guard.ChangeState(guard.searchingState);
-            }
+            Debug.Log("OnStateExit: Uscito dallo stato di caduta. Cambio stato a GetUp.");
+            guard.ChangeState(guard.getUpState);
         }
-
+        else if (stateInfo.IsName("GetUp")) 
+        {
+            Debug.Log("OnStateExit: Uscito dallo stato di alzata. Cambio stato a Searching.");
+            guard.ChangeState(guard.searchingState);
+        }
+        else if (stateInfo.IsName("SideHit")) 
+        {
+            Debug.Log("OnStateExit: Uscito dallo stato di colpo laterale. Cambio stato a Searching.");
+            guard.ChangeState(guard.searchingState);
+        }
     }
 }
 

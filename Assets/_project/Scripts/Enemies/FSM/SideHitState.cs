@@ -8,7 +8,8 @@ public class SideHitState : GuardBaseState
 
     public override void OnEnter()
     {
-
+        _guard.Agent.velocity = Vector3.zero;
+        _guard.Agent.isStopped = true;
         _guard.Agent.enabled = false;
     }
 
@@ -18,6 +19,6 @@ public class SideHitState : GuardBaseState
 
     public override void OnExit()
     {
-        _guard.Agent.enabled = true;
+      
     }
 }

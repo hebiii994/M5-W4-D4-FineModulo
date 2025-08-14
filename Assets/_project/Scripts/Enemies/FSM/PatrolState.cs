@@ -37,9 +37,12 @@ public class PatrolState : GuardBaseState
             _guard.ChangeState(_guard.chaseState);
             return;
         }
-       if (!_guard.Agent.pathPending && _guard.Agent.remainingDistance < 0.5f)
+        if (!_guard.Agent.pathPending && _guard.Agent.remainingDistance <= _guard.Agent.stoppingDistance)
         {
-            _guard.GoToNextWaypoint();
+            if (!_guard.Agent.hasPath || _guard.Agent.velocity.sqrMagnitude == 0f)
+            {
+                _guard.GoToNextWaypoint();
+            }
         }
     }
 

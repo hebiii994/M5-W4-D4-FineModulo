@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1101782901266893881}
   - component: {fileID: 734941178159170386}
   - component: {fileID: 6045577663465965467}
+  - component: {fileID: 8810207567901583558}
   m_Layer: 12
   m_Name: Guard_Patrol
   m_TagString: Untagged
@@ -137,6 +138,10 @@ MonoBehaviour:
   _searchTime: 5
   _visionConeOrigin: {fileID: 2062662836581652568}
   _visionConeRenderer: {fileID: 1388814275231643319}
+  _alertRadius: 20
+  _stopDistance: 1.5
+  _damageAmount: 25
+  _attackRate: 1
 --- !u!136 &734941178159170386
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -181,7 +186,34 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 0
+--- !u!54 &8810207567901583558
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 273863801049777904}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &3113710579275676170
 GameObject:
   m_ObjectHideFlags: 0

@@ -232,6 +232,7 @@ GameObject:
   - component: {fileID: 5157457461063443741}
   - component: {fileID: 8781746460850586408}
   - component: {fileID: 3605224262455437324}
+  - component: {fileID: 6093932119635416438}
   m_Layer: 12
   m_Name: Guard_Stationary
   m_TagString: Untagged
@@ -350,6 +351,8 @@ MonoBehaviour:
   _searchTime: 5
   _visionConeOrigin: {fileID: 6552203055027320716}
   _visionConeRenderer: {fileID: 3402181205331198506}
+  _alertRadius: 20
+  _stopDistance: 1.5
   _damageAmount: 25
   _attackRate: 1.5
 --- !u!136 &8781746460850586408
@@ -396,7 +399,34 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 0
+--- !u!54 &6093932119635416438
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4192752170203708707}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &5643805949643319328
 GameObject:
   m_ObjectHideFlags: 0
