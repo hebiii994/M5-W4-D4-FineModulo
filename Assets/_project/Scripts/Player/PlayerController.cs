@@ -69,7 +69,7 @@ public class PlayerController : MonoBehaviour
             StopMovement();
             return;
         }
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.JoystickButton1))
         {
             ToggleWallMode();
         }
@@ -109,7 +109,7 @@ public class PlayerController : MonoBehaviour
 
         while (_isAgainstWall)
         {
-            if (Input.GetKeyDown(KeyCode.Q))
+            if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.JoystickButton0))
             {
                 if (_playerCombat != null && !_playerCombat.IsAttacking)
                 {
@@ -190,7 +190,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Modalità cambiata in: " + _currentMode);
             _agent.ResetPath();
         }
-        if (Input.GetKeyDown(KeyCode.E) && _focusedInteractable != null)
+        if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.JoystickButton0) && _focusedInteractable != null)
         {
             _focusedInteractable.Interact();
         }

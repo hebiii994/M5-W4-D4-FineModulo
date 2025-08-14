@@ -28,7 +28,7 @@ public class PlayerCombat : MonoBehaviour
             _isAttacking = false;
         }
 
-        if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(1))
+        if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.JoystickButton2))
         {
             if (_isAttacking)
             {
