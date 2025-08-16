@@ -8,6 +8,7 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private float _hitboxRadius = 0.8f;
     [SerializeField] private LayerMask _enemyLayer;
     [SerializeField] private GameObject _noisePrefab;
+    [SerializeField] private int _attackDamage = 15;
 
     private PlayerController _playerController;
     public int ComboStep { get; set; } = 0;
@@ -29,8 +30,9 @@ public class PlayerCombat : MonoBehaviour
         {
             if (hit.TryGetComponent(out GuardAI guard))
             {
-                guard.LastKnownPlayerPosition = transform.position;
-                guard.GetHit(0); 
+                int currentComboStep = GetComponent<Animator>().GetInteger("AttackCombo");
+                Debug.Log("<color=cyan>PLAYER DEBUG: Sto per colpire con comboStep = " + currentComboStep + "</color>");
+                guard.GetHit(currentComboStep, _attackDamage);
                 return;
             }
         }

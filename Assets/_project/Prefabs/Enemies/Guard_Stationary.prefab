@@ -355,6 +355,8 @@ MonoBehaviour:
   _stopDistance: 1.5
   _damageAmount: 25
   _attackRate: 1.5
+  _stunDurationAfterHit: 0.5
+  _maxHealth: 100
 --- !u!136 &8781746460850586408
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -623,6 +625,9 @@ PrefabInstance:
       addedObject: {fileID: 1052352424700201070}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7e71923bbb0b8e5468381f627ac141e9, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 713957880134844577}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7e71923bbb0b8e5468381f627ac141e9, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 154635988790850608}
   m_SourcePrefab: {fileID: 100100000, guid: 7e71923bbb0b8e5468381f627ac141e9, type: 3}
 --- !u!4 &2480951003742410689 stripped
@@ -698,6 +703,20 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8192
   _minTimeBetweenSteps: 0.25
+--- !u!114 &713957880134844577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2964999575242755451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d58ebeecba95634d8767d8a9cf9494f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _leftFootstepDecalPrefab: {fileID: 1081322561675179788, guid: 6c06adcc7dabce540b02a49651779aa6, type: 3}
+  _rightFootstepDecalPrefab: {fileID: 1243191020032047655, guid: e709d16cb4a72a44b8f600d0f884fb0e, type: 3}
 --- !u!82 &154635988790850608
 AudioSource:
   m_ObjectHideFlags: 0
@@ -710,7 +729,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.29
   m_Pitch: 1
   Loop: 0
   Mute: 0

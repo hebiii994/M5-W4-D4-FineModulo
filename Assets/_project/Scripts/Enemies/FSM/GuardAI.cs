@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Xml;
 using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.AI;
@@ -35,6 +36,8 @@ public class GuardAI : MonoBehaviour
     public float ChaseSpeed => _chaseSpeed;
     public float CatchDistance => _catchDistance;
     public Vector3 LastKnownPlayerPosition { get; set; }
+    public float LastHitTime { get; private set; } = -99f; 
+    public float StunDuration => _stunDurationAfterHit;
 
     //Idle variables
     private Vector3 _startingPosition;
@@ -59,12 +62,17 @@ public class GuardAI : MonoBehaviour
     [SerializeField] private float _alertRadius = 15f;
     public static event Action<Vector3> OnGuardAlerted;
 
-    //miscellaneous variables
+    //combat variables
     [SerializeField] private float _stopDistance = 1.5f; 
     [SerializeField] private float _damageAmount = 20;
     [SerializeField] private float _attackRate = 1f;
+    [SerializeField] private float _stunDurationAfterHit = 0.5f;
     private float _lastDamageTime;
 
+    //health variables
+    [SerializeField] private int _maxHealth = 100;
+    private int _currentHealth;
+    private bool _isDead = false;
 
 
     public float AttackRate => _attackRate;
@@ -82,6 +90,8 @@ public class GuardAI : MonoBehaviour
     public GetUpState getUpState;
     public AlertState alertState;
     public AttackState attackState;
+    public DeadState deadState;
+
 
     private void OnEnable()
     {
@@ -116,11 +126,13 @@ public class GuardAI : MonoBehaviour
         getUpState = new GetUpState(this);
         alertState = new AlertState(this);
         attackState = new AttackState(this);
+        deadState = new DeadState(this);
     }
    
 
     private void Start()
     {
+        _currentHealth = _maxHealth;
         _visionConeRenderer.ViewAngle = _viewAngle;
         _visionConeRenderer.ViewRadius = _viewRadius;
         Agent.stoppingDistance = _stopDistance;
@@ -222,6 +234,11 @@ public class GuardAI : MonoBehaviour
 
     private void HandleAlert(Vector3 alertPosition)
     {
+        if (_isDead)
+        {
+            return;
+        }
+
         if (_currentState == chaseState || _currentState == fallState || _currentState == sideHitState || _currentState == getUpState)
         {
             return;
@@ -241,22 +258,37 @@ public class GuardAI : MonoBehaviour
         OnGuardAlerted?.Invoke(PlayerTransform.position);
     }
 
-    public void GetHit(int comboStep)
+    public void GetHit(int comboStep, int damageAmount)
     {
+        if (_isDead) return;
+        if (_currentState == fallState ) return;
 
-        if (_currentState == fallState || _currentState == sideHitState) return;
-
-
-        if (comboStep <= 2)
+        _currentHealth -= damageAmount;
+        Debug.Log("Vita della guardia rimasta: " + _currentHealth);
+        LastHitTime = Time.time;
+        if (_currentHealth <= 0)
         {
-            Animator.SetInteger("HitType", 1);
-            ChangeState(sideHitState);
+            _isDead = true;
+            Animator.SetTrigger("Die");
+            ChangeState(deadState);
         }
         else
         {
-            Animator.SetInteger("HitType", 2);
-            ChangeState(fallState);
+            if (comboStep <= 2)
+            {
+                Animator.SetInteger("HitType", 1);
+                ChangeState(sideHitState);
+            }
+            else
+            {
+                Animator.SetInteger("HitType", 2);
+                ChangeState(fallState);
+            }
         }
+        
+        Debug.Log("<color=orange>GUARDIA DEBUG: Colpito! Ricevuto comboStep = " + comboStep + "</color>", this);
+
+        
     }
 
     public void UpdateLastDamageTime()

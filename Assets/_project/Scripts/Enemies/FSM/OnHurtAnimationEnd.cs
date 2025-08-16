@@ -14,22 +14,27 @@ public class OnHurtAnimationEnd : StateMachineBehaviour
     {
         GuardAI guard = animator.GetComponentInParent<GuardAI>();
         if (guard == null) return;
-
-        if (stateInfo.IsName("Fall")) 
+        if (stateInfo.IsName("Fall"))
         {
             Debug.Log("OnStateExit: Uscito dallo stato di caduta. Cambio stato a GetUp.");
             guard.ChangeState(guard.getUpState);
         }
-        else if (stateInfo.IsName("GetUp")) 
+        else
         {
-            Debug.Log("OnStateExit: Uscito dallo stato di alzata. Cambio stato a Searching.");
-            guard.ChangeState(guard.searchingState);
+
+            if (guard.IsPlayerInSight())
+            {
+
+                Debug.Log("OnStateExit: Giocatore in vista dopo il colpo. Cambio stato a Chase.");
+                guard.ChangeState(guard.chaseState);
+            }
+            else
+            {
+                Debug.Log("OnStateExit: Giocatore non in vista dopo il colpo. Cambio stato a Searching.");
+                guard.ChangeState(guard.searchingState);
+            }
         }
-        else if (stateInfo.IsName("SideHit")) 
-        {
-            Debug.Log("OnStateExit: Uscito dallo stato di colpo laterale. Cambio stato a Searching.");
-            guard.ChangeState(guard.searchingState);
-        }
+
     }
 }
 

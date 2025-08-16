@@ -20,10 +20,21 @@ public class CrawlState : PlayerBaseState
             return;
         }
 
-        if (_controller.MovementInput.sqrMagnitude < 0.01f)
+        // ------- al momento voglio rimanere giù anche se non mi muovo --------
+
+        //if (_controller.MovementInput.sqrMagnitude < 0.01f)
+        //{
+        //    _controller.ChangeState(_controller.crouchState);
+        //    return;
+        //}
+        bool isMoving = _controller.MovementInput.sqrMagnitude > 0.01f;
+        if (isMoving)
         {
-            _controller.ChangeState(_controller.crouchState);
-            return;
+            _controller.Animator.speed = 1f;
+        }
+        else
+        {
+            _controller.Animator.speed = 0f;
         }
 
         HandleCrawlMovement(_controller.MovementInput);

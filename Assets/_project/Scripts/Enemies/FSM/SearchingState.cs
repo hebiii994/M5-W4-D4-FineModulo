@@ -9,7 +9,6 @@ public class SearchingState : GuardBaseState
     public SearchingState(GuardAI guard) : base(guard) { }
     public override void OnEnter()
     {
-        
         Debug.Log("Guardia: Entro in stato Searching (movimento).");
         _guard.Agent.enabled = true;
         _guard.Agent.updateRotation = true;

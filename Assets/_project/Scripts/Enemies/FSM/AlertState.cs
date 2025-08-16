@@ -8,6 +8,7 @@ public class AlertState : GuardBaseState
     public AlertState(GuardAI guard) : base(guard) { }
     public override void OnEnter()
     {
+        _guard.Agent.enabled = true;
         _guard.Agent.speed = _guard.ChaseSpeed; 
         _guard.Agent.SetDestination(_guard.LastKnownPlayerPosition);
     }

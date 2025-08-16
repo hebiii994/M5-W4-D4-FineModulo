@@ -15,9 +15,11 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private AudioSource _audioSource; 
     [SerializeField] private AudioClip _deathSound;
 
+    private PlayerController _playerController;
     private bool _isDead = false;
     void Start()
     {
+        _playerController = GetComponent<PlayerController>();
         _currentHealth = _maxHealth;
         UpdateHealthUI();
         if (_audioSource == null)
@@ -41,9 +43,9 @@ public class PlayerHealth : MonoBehaviour
 
         if (_currentHealth > 0)
         {
-            if (_animator != null)
+            if (_playerController != null)
             {
-                _animator.SetTrigger("GetHit");
+                _playerController.ChangeState(_playerController.hurtState);
             }
         }
         else

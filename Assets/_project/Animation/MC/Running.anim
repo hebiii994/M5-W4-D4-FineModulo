@@ -38764,9 +38764,23 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
+  - time: 0.2
+    functionName: PlaceFootstepDecal
+    data: Left
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 0.6
     functionName: PlayFootstepSound
     data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.6
+    functionName: PlaceFootstepDecal
+    data: Right
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

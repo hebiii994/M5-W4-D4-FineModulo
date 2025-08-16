@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     public PlayerAttackState attackState;
     public CrouchState crouchState;
     public CrawlState crawlState;
+    public HurtState hurtState;
 
 
     // --- RIFERIMENTI AI COMPONENTI ---
@@ -45,6 +46,8 @@ public class PlayerController : MonoBehaviour
     public float InteractionHeight => _interactionHeight;
     public PlayerBaseState CurrentState => _currentState;
 
+    public Rigidbody Rigidbody { get; private set; }
+
     //proprietà per input
     public Vector2 MovementInput { get; private set; }
     public bool CrouchInputDown { get; private set; }
@@ -70,12 +73,14 @@ public class PlayerController : MonoBehaviour
         MainCamera = Camera.main;
         Combat = GetComponent<PlayerCombat>();
         CapsuleCollider = GetComponent<CapsuleCollider>();
+        Rigidbody = GetComponent<Rigidbody>();
 
         locomotionState = new LocomotionState(this);
         wallPressState = new WallPressState(this);
         attackState = new PlayerAttackState(this);
         crouchState = new CrouchState(this);
         crawlState = new CrawlState(this);
+        hurtState = new HurtState(this);
     }
 
     private void Start()
@@ -115,6 +120,14 @@ public class PlayerController : MonoBehaviour
         CrouchInputDown = Input.GetKeyDown(KeyCode.C);
         AttackInputDown = Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(1);
         WallPressInputDown = Input.GetKeyDown(KeyCode.Space);
+    }
+
+    public void OnHurtAnimationFinished()
+    {
+        if (_currentState is HurtState)
+        {
+            ChangeState(locomotionState);
+        }
     }
 
     public void SetFocus(IInteractable newInteractable)

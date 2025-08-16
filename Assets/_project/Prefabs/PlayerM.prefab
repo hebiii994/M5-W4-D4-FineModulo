@@ -1157,6 +1157,7 @@ GameObject:
   - component: {fileID: 7952087046903836522}
   - component: {fileID: 2156099287227635964}
   - component: {fileID: 2595210560101396074}
+  - component: {fileID: 529054817190926340}
   - component: {fileID: 6753501202520528956}
   - component: {fileID: 7078128861753060961}
   - component: {fileID: 6406158908841805954}
@@ -1222,6 +1223,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _maxHealth: 100
   _healthSlider: {fileID: 0}
+  _animator: {fileID: 5272773164570393653}
+  _audioSource: {fileID: 684080830599449595}
+  _deathSound: {fileID: 8300000, guid: 5d4f4ad11eaed724e8f49a9f249c9bea, type: 3}
 --- !u!114 &2479977745331171108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1234,9 +1238,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20c651af76bdc8a4697a6c3cdc1d4ea8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _currentMode: 1
   _moveSpeed: 4
-  _playerCombat: {fileID: 2595210560101396074}
+  _crawlSpeed: 0.8
+  _normalHeight: 1.82
+  _crouchHeight: 1
   _interactionDistance: 1.5
   _interactionSphereRadius: 0.5
   _interactionHeight: 1
@@ -1244,9 +1249,7 @@ MonoBehaviour:
   _wallLayer:
     serializedVersion: 2
     m_Bits: 2048
-  _wallCheckDistance: 1
   _wallSlideSpeed: 8
-  _characterShoulderOffset: 0.4
   _wallPressCamera: {fileID: 0}
 --- !u!114 &7952087046903836522
 MonoBehaviour:
@@ -1310,15 +1313,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24321d0e3394d67499e55088cd8669b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animator: {fileID: 5272773164570393653}
-  _playerController: {fileID: 2479977745331171108}
-  _noisePrefab: {fileID: 7788769983325008194, guid: 8a790ffbcb4331b43a13273be4ea72e4, type: 3}
-  _comboResetTime: 1
+  _comboResetTime: 1.5
   _hitboxOrigin: {fileID: 2840359028180385953}
-  _hitboxRadius: 1
+  _hitboxRadius: 0.8
   _enemyLayer:
     serializedVersion: 2
     m_Bits: 4096
+  _noisePrefab: {fileID: 7788769983325008194, guid: 8a790ffbcb4331b43a13273be4ea72e4, type: 3}
+--- !u!114 &529054817190926340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5713855829015498471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d58ebeecba95634d8767d8a9cf9494f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _leftFootstepDecalPrefab: {fileID: 9094406007702041428, guid: 421fb637d35076c469f2d910a353047b, type: 3}
+  _rightFootstepDecalPrefab: {fileID: 8463294435112826989, guid: d9ba535c19a8af942a788a1572faa2d3, type: 3}
 --- !u!195 &6753501202520528956
 NavMeshAgent:
   m_ObjectHideFlags: 0
