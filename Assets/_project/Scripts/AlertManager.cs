@@ -13,6 +13,10 @@ public static class AlertManager
     private const float GRACE_PERIOD = 5.0f;
     private const float FAST_DRAIN_MULTIPLIER = 10f;
 
+    //provo a rendere più intelligente il sistema di allerta
+    private static List<GuardAI> _activeChasers = new List<GuardAI>();
+
+
     // Public properties
     public static bool IsAlertActive => AlertTimer > 0;
 
@@ -24,7 +28,7 @@ public static class AlertManager
         if (AlertTimer > 0)
         {
             float drainRate = 1.0f;
-            if (Time.time - _lastTimePlayerWasSeen > GRACE_PERIOD)
+            if (_activeChasers.Count == 0 && Time.time - _lastTimePlayerWasSeen > GRACE_PERIOD)
             {
                 drainRate = FAST_DRAIN_MULTIPLIER;
                 Debug.Log("Nessun avvistamento recente, fase di cautela");
@@ -50,6 +54,23 @@ public static class AlertManager
         }
         AlertTimer = ALERT_DURATION;
         _lastTimePlayerWasSeen = Time.time;
+    }
+
+    public static void RegisterChaser(GuardAI guard)
+    {
+        if (!_activeChasers.Contains(guard))
+        {
+            _activeChasers.Add(guard);
+        }
+        _lastTimePlayerWasSeen = Time.time; 
+    }
+
+    public static void UnregisterChaser(GuardAI guard)
+    {
+        if (_activeChasers.Contains(guard))
+        {
+            _activeChasers.Remove(guard);
+        }
     }
 
     public static void ReportPlayerSeen()

@@ -88,6 +88,8 @@ public class PlayerController : MonoBehaviour
         {
             if (_wallCoroutine != null) StopCoroutine(_wallCoroutine);
             _isAgainstWall = false;
+            _agent.Warp(transform.position);
+            StartCoroutine(DisableMovementForFrames(3));
             _agent.enabled = true; 
             if (_wallPressCamera != null) _wallPressCamera.SetActive(false);
         }
@@ -137,6 +139,14 @@ public class PlayerController : MonoBehaviour
 
             yield return null; 
         }
+    }
+
+    private IEnumerator DisableMovementForFrames(int frameCount)
+    {
+        CanMove = false;
+        for (int i = 0; i < frameCount; i++)
+            yield return null; 
+        CanMove = true;
     }
     private bool CheckForWall(out RaycastHit hitInfo)
     {

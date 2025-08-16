@@ -19,6 +19,7 @@ public class LookAroundState : GuardBaseState
         if (_guard.IsPlayerInSight())
         {
             _guard.ChangeState(_guard.chaseState);
+            return;
         }
     }
 

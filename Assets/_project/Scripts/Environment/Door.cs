@@ -1,20 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.AI.Navigation;
 using UnityEngine;
-
+using UnityEngine.AI; // Necessario per NavMeshObstacle
+using System;
 
 public class Door : MonoBehaviour
 {
-    [SerializeField] private NavMeshSurface _navMeshSurface;
+    private NavMeshObstacle _obstacle;
+    public static event Action OnDoorOpened;
+
+    private void Awake()
+    {
+        _obstacle = GetComponent<NavMeshObstacle>();
+    }
+
     public void OpenDoor()
     {
-        // Logica per aprire la porta momentanea
-        gameObject.SetActive(false);
-        Debug.Log("Porta aperta!");
-        if (_navMeshSurface != null)
+        if (_obstacle != null)
         {
-            _navMeshSurface.BuildNavMesh();
+            _obstacle.enabled = false;
         }
+
+        gameObject.SetActive(false);
+
+        OnDoorOpened?.Invoke();
+        Debug.Log("Porta aperta e ostacolo NavMesh rimosso!");
     }
 }

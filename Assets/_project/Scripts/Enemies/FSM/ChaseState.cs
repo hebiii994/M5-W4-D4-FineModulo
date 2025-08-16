@@ -9,12 +9,16 @@ public class ChaseState : GuardBaseState
     {
         _guard.Agent.updateRotation = true;
         _guard.Agent.speed = _guard.ChaseSpeed;
-        AlertManager.TriggerAlert();
-        _guard.BroadcastAlert();
+        AlertManager.RegisterChaser(_guard);
+        if (!AlertManager.IsAlertActive)
+        {
+            AlertManager.TriggerAlert();
+            _guard.BroadcastAlert(); 
+        }
     }
     public override void OnUpdate()
     {
-        if (_guard.Animator.GetCurrentAnimatorStateInfo(0).IsTag("Hurt"))
+        if (_guard.Animator.GetCurrentAnimatorStateInfo(0).IsTag("Hurt") || _guard.Animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack"))
         {
             return;
         }
@@ -28,14 +32,13 @@ public class ChaseState : GuardBaseState
 
             if (distanceToPlayer < _guard.CatchDistance && Time.time - _guard.LastDamageTime > _guard.AttackRate)
             {
-
-                if (_guard.PlayerTransform.TryGetComponent(out PlayerHealth playerHealth))
-                {
-
-                    playerHealth.TakeDamage((int)_guard.DamageAmount);
-                    _guard.UpdateLastDamageTime();
-                }
-                return;
+                _guard.ChangeState(_guard.attackState);
+                return; 
+            }
+            if (!_guard.IsPlayerInSight())
+            {
+                _guard.LastKnownPlayerPosition = _guard.PlayerTransform.position;
+                _guard.ChangeState(_guard.searchingState);
             }
         }
 
@@ -52,5 +55,6 @@ public class ChaseState : GuardBaseState
     public override void OnExit()
     {
          _guard.Agent.speed = _guard.PatrolSpeed;
+        AlertManager.UnregisterChaser(_guard);
     }
 }

@@ -40,8 +40,9 @@ public class IdleState : GuardBaseState
                 _waitTimer -= Time.deltaTime;
                 if (_waitTimer <= 0)
                 {
-                    float randomYAngle = Random.Range(0f, 360f);
-                    _targetRotation = Quaternion.Euler(0, randomYAngle, 0);
+                    float initialYAngle = _guard.StartingRotation.eulerAngles.y;
+                    float randomOffset = Random.Range(-90f, 90f);
+                    _targetRotation = Quaternion.Euler(0, initialYAngle + randomOffset, 0);
                     _waitTimer = _guard.IdleWaitTime;
                 }
             }

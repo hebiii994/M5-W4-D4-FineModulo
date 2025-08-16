@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class AlertState : GuardBaseState
 {
@@ -13,6 +14,11 @@ public class AlertState : GuardBaseState
 
     public override void OnUpdate()
     {
+        if (_guard.Agent.pathStatus == NavMeshPathStatus.PathPartial)
+        {
+            _guard.ChangeState(_guard.searchingState);
+            return;
+        }
 
         if (!AlertManager.IsAlertActive)
         {
@@ -24,6 +30,11 @@ public class AlertState : GuardBaseState
         if (_guard.IsPlayerInSight())
         {
             _guard.ChangeState(_guard.chaseState);
+        }
+
+        if (!_guard.Agent.pathPending && _guard.Agent.remainingDistance <= _guard.Agent.stoppingDistance)
+        {
+            _guard.ChangeState(_guard.searchingState);
         }
     }
 

@@ -59,13 +59,12 @@ public class GuardAI : MonoBehaviour
 
     //miscellaneous variables
     [SerializeField] private float _stopDistance = 1.5f; 
-    [SerializeField] private float _damageAmount = 25;
+    [SerializeField] private float _damageAmount = 20;
     [SerializeField] private float _attackRate = 1f;
     private float _lastDamageTime;
 
 
 
-    public float DamageAmount => _damageAmount;
     public float AttackRate => _attackRate;
     public float LastDamageTime => _lastDamageTime;
 
@@ -80,6 +79,7 @@ public class GuardAI : MonoBehaviour
     public LookAroundState lookAroundState;
     public GetUpState getUpState;
     public AlertState alertState;
+    public AttackState attackState;
 
     private void OnEnable()
     {
@@ -107,6 +107,7 @@ public class GuardAI : MonoBehaviour
         lookAroundState = new LookAroundState(this);
         getUpState = new GetUpState(this);
         alertState = new AlertState(this);
+        attackState = new AttackState(this);
     }
    
 
@@ -114,6 +115,7 @@ public class GuardAI : MonoBehaviour
     {
         _visionConeRenderer.ViewAngle = _viewAngle;
         _visionConeRenderer.ViewRadius = _viewRadius;
+        Agent.stoppingDistance = _stopDistance;
         if (_behaviorType == BehaviorType.Patrol)
         {
             ChangeState(patrolState);
@@ -191,6 +193,25 @@ public class GuardAI : MonoBehaviour
         }
     }
 
+    public void DealDamage()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position + transform.forward * 1f, CatchDistance, _playerMask);
+
+        if (hits.Length > 0)
+        {
+            if (hits[0].TryGetComponent(out PlayerHealth playerHealth))
+            {
+                Debug.Log("<color=red>COLPO DELLA GUARDIA A SEGNO!</color> Danno inflitto.");
+                playerHealth.TakeDamage((int)_damageAmount);
+                UpdateLastDamageTime(); 
+            }
+        }
+        else
+        {
+            Debug.Log("Guardia: ho attaccato ma il giocatore non era a portata.");
+        }
+    }
+
     private void HandleAlert(Vector3 alertPosition)
     {
         if (_currentState == chaseState || _currentState == fallState || _currentState == sideHitState || _currentState == getUpState)
@@ -235,25 +256,7 @@ public class GuardAI : MonoBehaviour
         _lastDamageTime = Time.time;
     }
 
-    public void HandleAttackRangeStop()
-    {
-        if (_playerTarget == null) return;
-
-        float distance = Vector3.Distance(transform.position, _playerTarget.position);
-
-        if (distance <= _stopDistance)
-        {
-            Agent.isStopped = true;
-            Agent.updatePosition = false;
-            Agent.updateRotation = false;
-        }
-        else
-        {
-            Agent.isStopped = false;
-            Agent.updatePosition = true;
-            Agent.updateRotation = true;
-        }
-    }
+  
 
     public void OnLookAroundFinished()
     {
