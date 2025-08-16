@@ -2710,6 +2710,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: c9f1adad6a8512844b46123c009050e4, type: 2}
+    - target: {fileID: 5157457461063443741, guid: 80ea84a90f64bb34f8640de1f02e785e, type: 3}
+      propertyPath: _playerTarget
+      value: 
+      objectReference: {fileID: 1636318109}
     - target: {fileID: 7343999838251390307, guid: 80ea84a90f64bb34f8640de1f02e785e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.3927503

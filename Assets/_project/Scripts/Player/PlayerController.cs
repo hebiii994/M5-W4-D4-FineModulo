@@ -1,299 +1,169 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UIElements;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
-    public enum MovementMode
-    {
-        PointAndClick,
-        WASD
-    }
+    // --- STATI DELLA FSM ---
+    private PlayerBaseState _currentState;
+    public LocomotionState locomotionState;
+    public WallPressState wallPressState;
+    public PlayerAttackState attackState;
+    public CrouchState crouchState;
+    public CrawlState crawlState;
 
-    [SerializeField] private MovementMode _currentMode = MovementMode.PointAndClick;
-    [SerializeField] private float _moveSpeed = 5f;
-    [SerializeField] private PlayerCombat _playerCombat;
+
+    // --- RIFERIMENTI AI COMPONENTI ---
+    public NavMeshAgent Agent { get; private set; }
+    public Animator Animator { get; private set; }
+    public Camera MainCamera { get; private set; }
+    public PlayerCombat Combat { get; private set; }
+    public CapsuleCollider CapsuleCollider { get; private set; }
     public bool CanMove { get; set; } = true;
 
-    //interaction variables
+    [Header("Movement")]
+    [SerializeField] private float _moveSpeed = 5f;
+    public float MoveSpeed => _moveSpeed;
+
+    [Header("Crouch & Crawl")] 
+    [SerializeField] private float _crawlSpeed = 2.0f;
+    [SerializeField] private float _normalHeight = 1.8f;
+    [SerializeField] private float _crouchHeight = 1.0f;
+    public float CrawlSpeed => _crawlSpeed;
+    public float NormalHeight => _normalHeight;
+    public float CrouchHeight => _crouchHeight;
+
+    [Header("Interaction")]
     [SerializeField] private float _interactionDistance = 2f;
     [SerializeField] private float _interactionSphereRadius = 0.5f;
-    [SerializeField] private float _interactionHeight = 1f; 
+    [SerializeField] private float _interactionHeight = 1f;
     [SerializeField] private TextMeshProUGUI _interactionPromptText;
 
-    //private variables
-    private NavMeshAgent _agent;
-    private Camera _mainCamera;
-    private Rigidbody _rb;
+    public float InteractionDistance => _interactionDistance;
+    public float InteractionSphereRadius => _interactionSphereRadius;
+    public float InteractionHeight => _interactionHeight;
+    public PlayerBaseState CurrentState => _currentState;
+
+    //proprietà per input
+    public Vector2 MovementInput { get; private set; }
+    public bool CrouchInputDown { get; private set; }
+    public bool AttackInputDown { get; private set; }
+    public bool WallPressInputDown { get; private set; }
+
+    [Header("Wall Press")]
+    [SerializeField] private LayerMask _wallLayer;
+    [SerializeField] private float _wallSlideSpeed = 3f;
+    [SerializeField] private GameObject _wallPressCamera;
+    public LayerMask WallLayer => _wallLayer;
+    public float WallSlideSpeed => _wallSlideSpeed;
+    public GameObject WallPressCamera => _wallPressCamera;
+
     private IInteractable _focusedInteractable;
 
-    //wall press variables
-    [SerializeField] private LayerMask _wallLayer;
-    [SerializeField] private float _wallCheckDistance = 1f;
-    [SerializeField] private float _wallSlideSpeed = 8f;
-    [SerializeField] private float _characterShoulderOffset = 0.4f;
-    [SerializeField] private GameObject _wallPressCamera;
-    private Coroutine _wallCoroutine;
-    private bool _isAgainstWall = false;
-    private Vector3 _wallNormal;
-
-    public bool IsAgainstWall => _isAgainstWall;
-
+    private bool _acceptingInput = false;
     private void Awake()
     {
-        _agent = GetComponent<NavMeshAgent>();
-        _mainCamera = Camera.main;
-        _rb = GetComponent<Rigidbody>();
-        _rb.interpolation = RigidbodyInterpolation.None;
-        _rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
-        _rb.isKinematic = true;
+
+        Agent = GetComponent<NavMeshAgent>();
+        Animator = GetComponentInChildren<Animator>();
+        MainCamera = Camera.main;
+        Combat = GetComponent<PlayerCombat>();
+        CapsuleCollider = GetComponent<CapsuleCollider>();
+
+        locomotionState = new LocomotionState(this);
+        wallPressState = new WallPressState(this);
+        attackState = new PlayerAttackState(this);
+        crouchState = new CrouchState(this);
+        crawlState = new CrawlState(this);
     }
 
     private void Start()
     {
-        _agent.speed = _moveSpeed;
-        _agent.acceleration = 999f;
-        _agent.angularSpeed = 999f;
+        Agent.speed = _moveSpeed;
+        Agent.acceleration = 999f;
+        Agent.angularSpeed = 999f;
 
-        if (_interactionPromptText != null)
-            _interactionPromptText.gameObject.SetActive(false);
+        ChangeState(locomotionState);
+        StartCoroutine(EnableInputAfterDelay(0.1f));
     }
 
     private void Update()
     {
-        if (_playerCombat != null && _playerCombat.IsAttacking)
-        {
-            StopMovement();
-            return;
-        }
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.JoystickButton1))
-        {
-            ToggleWallMode();
-        }
-        if (!_isAgainstWall)
-        {
-            HandleInput();
-            HandleMovement();
-            HandleInteractionCheck();
-        }
-
+        HandleInputs();
+        if (!_acceptingInput) return;
+        _currentState?.OnUpdate();
     }
 
-    private void ToggleWallMode()
+    public void ChangeState(PlayerBaseState newState)
     {
-        if (_isAgainstWall)
-        {
-            if (_wallCoroutine != null) StopCoroutine(_wallCoroutine);
-            _isAgainstWall = false;
-            _agent.Warp(transform.position);
-            StartCoroutine(DisableMovementForFrames(3));
-            _agent.enabled = true; 
-            if (_wallPressCamera != null) _wallPressCamera.SetActive(false);
-        }
-        else if (CheckForWall(out RaycastHit hit))
-        {
-            _wallNormal = hit.normal;
-            _wallCoroutine = StartCoroutine(WallPressRoutine(hit));
-        }
+        _currentState?.OnExit();
+        _currentState = newState;
+        _currentState.OnEnter();
     }
-    private IEnumerator WallPressRoutine(RaycastHit wallHit)
+
+    private IEnumerator EnableInputAfterDelay(float delay)
     {
-        _isAgainstWall = true;
-        _agent.velocity = Vector3.zero;
-        _agent.enabled = false;
-        if (_wallPressCamera != null) _wallPressCamera.SetActive(true);
-
-        transform.rotation = Quaternion.LookRotation(wallHit.normal);
-        transform.position = new Vector3(wallHit.point.x, transform.position.y, wallHit.point.z) + wallHit.normal * 0.3f;
-
-        while (_isAgainstWall)
-        {
-            if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.JoystickButton0))
-            {
-                if (_playerCombat != null && !_playerCombat.IsAttacking)
-                {
-                    _playerCombat.KnockOnWall();
-                }
-            }
-
-            float horizontalInput = Input.GetAxis("Horizontal");
-            if (Mathf.Abs(horizontalInput) > 0.1f)
-            {
-                Vector3 movementDirection = Vector3.Cross(_wallNormal, Vector3.up);
-                Vector3 moveDelta = movementDirection * horizontalInput * _wallSlideSpeed * Time.deltaTime;
-                Vector3 nextPosition = transform.position + moveDelta;
-                Vector3 centerCheckOrigin = nextPosition + Vector3.up * 0.5f;
-                bool hasWallInFront = Physics.Raycast(centerCheckOrigin, -_wallNormal, 0.5f, _wallLayer);
-                Vector3 shoulderOffset = movementDirection * Mathf.Sign(horizontalInput) * _characterShoulderOffset;
-                Vector3 leadingEdgeCheckOrigin = centerCheckOrigin + shoulderOffset;
-                bool hasWallOnMovingSide = Physics.Raycast(centerCheckOrigin + shoulderOffset, -_wallNormal, 0.5f, _wallLayer);
-
-                if (hasWallInFront && hasWallOnMovingSide)
-                {
-                    _rb.MovePosition(nextPosition);
-                }
-            }
-
-            yield return null; 
-        }
+        yield return new WaitForSeconds(delay);
+        _acceptingInput = true;
     }
-
-    private IEnumerator DisableMovementForFrames(int frameCount)
+    private void HandleInputs()
     {
-        CanMove = false;
-        for (int i = 0; i < frameCount; i++)
-            yield return null; 
-        CanMove = true;
+
+        MovementInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+
+        CrouchInputDown = Input.GetKeyDown(KeyCode.C);
+        AttackInputDown = Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(1);
+        WallPressInputDown = Input.GetKeyDown(KeyCode.Space);
     }
-    private bool CheckForWall(out RaycastHit hitInfo)
+
+    public void SetFocus(IInteractable newInteractable)
     {
-        Vector3 checkOrigin = transform.position + Vector3.up * _interactionHeight;
-        return Physics.Raycast(checkOrigin, transform.forward, out hitInfo, _wallCheckDistance, _wallLayer);
+        if (newInteractable == _focusedInteractable) return;
+        _focusedInteractable = newInteractable;
+        _interactionPromptText.text = _focusedInteractable.InteractionPrompt;
+        _interactionPromptText.gameObject.SetActive(true);
     }
 
-
-    private void HandleInteractionCheck()
-    {
-        Vector3 interactionOrigin = transform.position + Vector3.up * _interactionHeight;
-        if (Physics.SphereCast(interactionOrigin, _interactionSphereRadius, transform.forward, out RaycastHit hit, _interactionDistance))
-        {
-            if (hit.collider.TryGetComponent<IInteractable>(out IInteractable interactable))
-            {
-                if (interactable != _focusedInteractable)
-                {
-                    _focusedInteractable = interactable;
-                    ShowInteractionPrompt();
-                    
-                }
-                return;
-            } 
-        }
-        ClearFocus();
-    }
-
-    private void ShowInteractionPrompt()
-    {
-        if (_interactionPromptText != null && _focusedInteractable != null)
-        {
-            _interactionPromptText.text = _focusedInteractable.InteractionPrompt;
-            _interactionPromptText.gameObject.SetActive(true);
-        }
-    }
-
-    private void ClearFocus()
+    public void ClearFocus()
     {
         if (_focusedInteractable != null)
         {
             _focusedInteractable = null;
-            if (_interactionPromptText != null)
-                _interactionPromptText.gameObject.SetActive(false);
+            _interactionPromptText.gameObject.SetActive(false);
         }
     }
-    private void HandleInput()
+
+    public void InteractWithFocused()
     {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            _currentMode = (_currentMode == MovementMode.PointAndClick) ? MovementMode.WASD : MovementMode.PointAndClick;
-            Debug.Log("Modalità cambiata in: " + _currentMode);
-            _agent.ResetPath();
-        }
-        if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.JoystickButton0) && _focusedInteractable != null)
-        {
-            _focusedInteractable.Interact();
-        }
+        _focusedInteractable?.Interact();
     }
 
-    private void HandleMovement()
-    {
-        if (!CanMove)
-        {
-            _agent.velocity = Vector3.zero;
-            return; 
-        }
-
-        switch (_currentMode)
-        {
-            case MovementMode.PointAndClick:
-                HandlePointAndClickMovement();
-                break;
-            case MovementMode.WASD:
-                HandleWASDMovement();
-                break;
-        }
-    }
-
-    private void HandlePointAndClickMovement()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
-            {
-                _agent.SetDestination(hit.point);
-            }
-        }
-    }
-    private void HandleWASDMovement()
-    {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-
-        Vector3 cameraForward = _mainCamera.transform.forward;
-        cameraForward.y = 0;
-        cameraForward.Normalize();
-
-        Vector3 cameraRight = _mainCamera.transform.right;
-        cameraRight.y = 0;
-        cameraRight.Normalize();
-
-        Vector3 moveDirection = (cameraForward * vertical + cameraRight * horizontal);
-        moveDirection = Vector3.ClampMagnitude(moveDirection, 1f);
-        Vector3 desiredVelocity = moveDirection * _moveSpeed;
-
-        _agent.velocity = desiredVelocity;
-
-        if (moveDirection != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
-        }
-    }
     public void StopMovement()
     {
-        if (!_agent.enabled)
+        if (Agent.enabled)
         {
-            return; 
-        }
-        _agent.velocity = Vector3.zero;
-        if (_agent.hasPath) 
-        {
-            _agent.ResetPath();
+            Agent.velocity = Vector3.zero;
+            Agent.ResetPath();
         }
     }
 
+    public void OnAttackFinished()
+    {
+        // Se siamo in PlayerAttackState, notifichiamogli che l'animazione è finita.
+        if (_currentState is PlayerAttackState attackState)
+        {
+            attackState.OnAnimationFinished();
+        }
+    }
+
+    // --- DEBUG ---
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-
         Vector3 startPoint = transform.position + Vector3.up * _interactionHeight;
         Vector3 endPoint = startPoint + transform.forward * _interactionDistance;
         Gizmos.DrawWireSphere(startPoint, _interactionSphereRadius);
-
         Gizmos.DrawWireSphere(endPoint, _interactionSphereRadius);
-
-        Vector3 up = transform.up * _interactionSphereRadius;
-        Vector3 right = transform.right * _interactionSphereRadius;
-
-        Gizmos.DrawLine(startPoint - right, endPoint - right);
-        Gizmos.DrawLine(startPoint + right, endPoint + right);
-        Gizmos.DrawLine(startPoint - up, endPoint - up);
-        Gizmos.DrawLine(startPoint + up, endPoint + up);
     }
 }
-
-
-
-

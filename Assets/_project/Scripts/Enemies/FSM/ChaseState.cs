@@ -22,7 +22,7 @@ public class ChaseState : GuardBaseState
         {
             return;
         }
-        if (_guard.PlayerTransform.GetComponent<PlayerCombat>().IsAttacking)
+        if (_guard.PlayerController.CurrentState is PlayerAttackState)
         {
             // Insegui ma non fare danno, aspetta che finisca la sua combo
         }

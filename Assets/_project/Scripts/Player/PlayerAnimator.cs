@@ -37,19 +37,16 @@ public class PlayerAnimator : MonoBehaviour
 
         _animator.SetFloat("Speed", smoothedSpeed);
 
-        if (_playerController != null)
-        {
-            _animator.SetBool("isAgainstWall", _playerController.IsAgainstWall);
-        }
+        bool isAgainstWall = _playerController.CurrentState is WallPressState;
+        _animator.SetBool("isAgainstWall", isAgainstWall);
 
-        if (_playerController.IsAgainstWall)
+        if (isAgainstWall)
         {
             float wallMoveDirection = Input.GetAxis("Horizontal");
             _animator.SetFloat("WallMoveDirection", wallMoveDirection);
         }
         else
         {
-            // Resetta il parametro quando non siamo al muro
             _animator.SetFloat("WallMoveDirection", 0f);
         }
     }

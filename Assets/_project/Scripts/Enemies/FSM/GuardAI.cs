@@ -18,6 +18,8 @@ public class GuardAI : MonoBehaviour
     public Transform PlayerTransform { get; private set; }
     public Animator Animator { get; private set; }
 
+    public PlayerController PlayerController { get; private set; }
+
     //Waypoint patrol variables
     private int _currentWaypointIndex = 0;
     private bool _isPatrollingForward = true;
@@ -96,6 +98,12 @@ public class GuardAI : MonoBehaviour
         Agent = GetComponent<NavMeshAgent>();
         Animator = GetComponentInChildren<Animator>();
         PlayerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        if (PlayerTransform == null)
+        {
+            Debug.LogError("ERRORE: Nessun GameObject con tag 'Player' trovato nella scena!", this);
+            return; 
+        }
+        PlayerController = PlayerTransform.GetComponentInParent<PlayerController>();
         _startingPosition = transform.position;
         _startingRotation = transform.rotation;
         patrolState = new PatrolState(this);
