@@ -7,8 +7,11 @@ using UnityEngine.EventSystems;
 public class MainMenuManager : MonoBehaviour
 {
     [SerializeField] private GameObject _pressStartPanel; 
-    [SerializeField] private GameObject _mainMenuPanel; 
+    [SerializeField] private GameObject _mainMenuPanel;
+    [SerializeField] private GameObject _optionsPanel;
+    [SerializeField] private GameObject _optionsExitButton;
     [SerializeField] private GameObject _firstSelectedButton;
+    [SerializeField] private GameObject _firstSelectedButtonOptions;
     private GameObject _lastSelectedGameObject;
 
     //variabili per i suoni del menu
@@ -28,6 +31,8 @@ public class MainMenuManager : MonoBehaviour
     {
         _pressStartPanel.SetActive(true);
         _mainMenuPanel.SetActive(false);
+        _optionsPanel.SetActive(false);
+        _optionsExitButton.SetActive(false);
     }
 
 
@@ -70,18 +75,32 @@ public class MainMenuManager : MonoBehaviour
         _lastSelectedGameObject = _firstSelectedButton;
     }
 
+    public void OpenOptionsPanel()
+    {
+        _mainMenuPanel.SetActive(false);
+        _optionsPanel.SetActive(true);
+        _optionsExitButton.SetActive(true);
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(_firstSelectedButtonOptions);
+
+    }
+
+    public void CloseOptionsPanel()
+    {
+        _optionsPanel.SetActive(false);
+        _mainMenuPanel.SetActive(true);
+        _optionsExitButton.SetActive(false);
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(_firstSelectedButton);
+    }
+
     public void StartGame()
     {
         PlaySound(_confirmSound);
         Debug.Log("Avvio del gioco...");
         SceneManager.LoadScene("Level_01");
     }
-    public void Options()
-    {
-        PlaySound(_confirmSound);
-        // Qui in futuro ci sarà la logica per aprire il menù opzioni
-        Debug.Log("Menù Opzioni non ancora implementato.");
-    }
+
 
     public void QuitGame()
     {

@@ -8,7 +8,13 @@ public class LookAroundState : GuardBaseState
 
     public override void OnEnter()
     {
+        _guard.Agent.enabled = true;
+        if (_guard.Agent.hasPath)
+        {
+            _guard.Agent.ResetPath();
+        }
         _guard.Agent.isStopped = true;
+        _guard.Agent.velocity = Vector3.zero;
         _guard.Agent.updateRotation = false;
         _guard.Animator.SetTrigger("LookAround");
     }

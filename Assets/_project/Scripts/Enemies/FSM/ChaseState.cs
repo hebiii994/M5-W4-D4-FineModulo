@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class ChaseState : GuardBaseState
 {
+    private float _timeLostPlayer = -1f;
+    private const float REACTION_TIME_BEFORE_SEARCHING = 0.5f;
     public ChaseState(GuardAI guard) : base(guard) { }
     public override void OnEnter()
     {
+        _timeLostPlayer = -1f;
         _guard.Agent.enabled = true;
         _guard.Agent.updateRotation = true;
         _guard.Agent.speed = _guard.ChaseSpeed;
@@ -47,10 +50,25 @@ public class ChaseState : GuardBaseState
             if (!_guard.IsPlayerInSight())
             {
                 _guard.LastKnownPlayerPosition = _guard.PlayerTransform.position;
+                _guard.ChangeState(_guard.alertState);
+            }
+        }
+        if (!_guard.IsPlayerInSight())
+        {
+            if (_timeLostPlayer < 0)
+            {
+                _timeLostPlayer = Time.time;
+            }
+            if (Time.time >= _timeLostPlayer + REACTION_TIME_BEFORE_SEARCHING)
+            {
+                _guard.LastKnownPlayerPosition = _guard.PlayerTransform.position;
                 _guard.ChangeState(_guard.searchingState);
             }
         }
-
+        else
+        {
+            _timeLostPlayer = -1f;
+        }
         AlertManager.ReportPlayerSeen();
 
         _guard.Agent.SetDestination(_guard.PlayerTransform.position);

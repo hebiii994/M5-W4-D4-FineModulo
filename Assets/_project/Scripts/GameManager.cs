@@ -6,6 +6,8 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private GameObject _minimapPanel;
+    [SerializeField] private GameObject _alertPanel;
     [SerializeField] private TextMeshProUGUI _alertTimerText;
     public static GameManager Instance { get; private set; }
 
@@ -40,10 +42,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        if (_alertTimerText != null)
-        {
-            _alertTimerText.gameObject.SetActive(false);
-        }
+        if (_minimapPanel != null) _minimapPanel.SetActive(true);
+        if (_alertPanel != null) _alertPanel.SetActive(false);
     }
     private void Update()
     {
@@ -52,24 +52,19 @@ public class GameManager : MonoBehaviour
     }
     private void UpdateAlertUI()
     {
-        if (_alertTimerText == null) return; 
+        if (_alertTimerText == null) return;
+        if (!_alertPanel.activeSelf || _alertTimerText == null) return;
+        float timer = AlertManager.AlertTimer;
+        int seconds = Mathf.FloorToInt(timer);
+        int milliseconds = Mathf.FloorToInt((timer - seconds) * 100);
+        _alertTimerText.text = $"{seconds:D2}:{milliseconds:D2}";
 
-        
-        if (AlertManager.IsAlertActive)
-        {
-            _alertTimerText.gameObject.SetActive(true);
-            int timeLeft = Mathf.CeilToInt(AlertManager.AlertTimer);
-            _alertTimerText.text = $"ALERT\n{timeLeft}";
-        }
-
-        else
-        {
-            _alertTimerText.gameObject.SetActive(false);
-        }
     }
 
     private void HandleAlertStatusChanged(bool isAlerted)
     {
+        if (_minimapPanel != null) _minimapPanel.SetActive(!isAlerted);
+        if (_alertPanel != null) _alertPanel.SetActive(isAlerted);
         if (_musicFadeCoroutine != null)
         {
             StopCoroutine(_musicFadeCoroutine);

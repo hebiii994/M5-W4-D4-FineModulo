@@ -6,6 +6,7 @@ public class VisionConeRenderer : MonoBehaviour
 {
     [SerializeField] private LineRenderer _lineRenderer;
     [SerializeField] private int _segments = 50;
+    [SerializeField] private LayerMask _obstacleMask;
 
     public float ViewRadius;
     public float ViewAngle;
@@ -32,9 +33,19 @@ public class VisionConeRenderer : MonoBehaviour
         float angleStep = ViewAngle / (_segments - 1);
         for (int i = 0; i < _segments; i++)
         {
+            Vector3 direction = Quaternion.Euler(0, currentAngle, 0) * transform.forward;
+            RaycastHit hit;
             float x = Mathf.Sin(Mathf.Deg2Rad * currentAngle) * ViewRadius;
             float z = Mathf.Cos(Mathf.Deg2Rad * currentAngle) * ViewRadius;
             points[i + 1] = new Vector3(x, 0, z);
+            if (Physics.Raycast(transform.position, direction, out hit, ViewRadius, _obstacleMask))
+            {
+                points[i + 1] = transform.InverseTransformPoint(hit.point);
+            }
+            else
+            {
+                points[i + 1] = transform.InverseTransformDirection(direction * ViewRadius);
+            }
             currentAngle += angleStep;
         }
 

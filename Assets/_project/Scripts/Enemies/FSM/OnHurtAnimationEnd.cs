@@ -14,6 +14,12 @@ public class OnHurtAnimationEnd : StateMachineBehaviour
     {
         GuardAI guard = animator.GetComponentInParent<GuardAI>();
         if (guard == null) return;
+
+        if (guard.IsDead) // Avremo bisogno di esporre la proprietà IsDead
+        {
+            return;
+        }
+
         if (stateInfo.IsName("Fall"))
         {
             Debug.Log("OnStateExit: Uscito dallo stato di caduta. Cambio stato a GetUp.");

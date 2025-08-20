@@ -9,6 +9,7 @@ public class AttackState : GuardBaseState
 
     public override void OnEnter()
     {
+        _guard.Agent.velocity = Vector3.zero;
         _guard.Agent.isStopped = true;
         _guard.Agent.updateRotation = false;
         Vector3 directionToPlayer = (_guard.PlayerTransform.position - _guard.transform.position).normalized;
@@ -35,3 +36,4 @@ public class AttackState : GuardBaseState
         _guard.Agent.updateRotation = true;
     }
 }
+

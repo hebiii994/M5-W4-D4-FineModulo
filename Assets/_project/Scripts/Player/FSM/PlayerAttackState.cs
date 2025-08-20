@@ -2,23 +2,33 @@ using UnityEngine;
 
 public class PlayerAttackState : PlayerBaseState
 {
+    private bool _attackQueued = false;
+
     public PlayerAttackState(PlayerController controller) : base(controller) { }
 
     public override void OnEnter()
     {
         Debug.Log("Entering Attack State");
+        _attackQueued = false;
         _controller.StopMovement();
         _controller.CanMove = false;
         Attack();
     }
 
-    public override void OnUpdate() { }
+    public override void OnUpdate() 
+    {
+        if (_controller.AttackInputDown)
+        {
+            _attackQueued = true;
+        }
+    }
 
     public override void OnExit()
     {
         Debug.Log("Exiting Attack State");
         _controller.CanMove = true;
         _controller.Animator.ResetTrigger("Attack");
+        _controller.Animator.SetInteger("AttackCombo", 0);
     }
 
     private void Attack()
@@ -42,6 +52,13 @@ public class PlayerAttackState : PlayerBaseState
 
     public void OnAnimationFinished()
     {
-        _controller.ChangeState(_controller.locomotionState);
+        if (_attackQueued)
+        {
+            OnEnter();
+        }
+        else
+        {
+            _controller.ChangeState(_controller.locomotionState);
+        }
     }
 }

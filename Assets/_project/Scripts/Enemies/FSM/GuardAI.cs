@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq;
 using System.Xml;
 using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
@@ -10,13 +11,12 @@ public class GuardAI : MonoBehaviour
 {
     //reference variables
     [SerializeField] private Transform[] _waypoints;
-    [SerializeField] private Transform _playerTarget;
+    [SerializeField] private Transform[] _playerTargets;
 
     //properties 
-    public Transform PlayerTarget { get; private set; }
     public Transform[] Waypoints => _waypoints;
     public NavMeshAgent Agent { get; private set; }
-    public Transform PlayerTransform { get; private set; }
+    public Transform PlayerTransform => (_playerTargets != null && _playerTargets.Length > 0) ? _playerTargets[0] : null;
     public Animator Animator { get; private set; }
 
     public PlayerController PlayerController { get; private set; }
@@ -56,6 +56,7 @@ public class GuardAI : MonoBehaviour
     [SerializeField] private float _searchTime = 5f;
     [SerializeField] private Transform _visionConeOrigin;
     [SerializeField] private VisionConeRenderer _visionConeRenderer;
+
     public float SearchTime => _searchTime;
 
     //alarm variables
@@ -77,6 +78,7 @@ public class GuardAI : MonoBehaviour
 
     public float AttackRate => _attackRate;
     public float LastDamageTime => _lastDamageTime;
+    public bool IsDead => _isDead;
 
     //States
     private GuardBaseState _currentState;
@@ -107,13 +109,24 @@ public class GuardAI : MonoBehaviour
     {
         Agent = GetComponent<NavMeshAgent>();
         Animator = GetComponentInChildren<Animator>();
-        PlayerTransform = GameObject.FindGameObjectWithTag("Player").transform;
-        if (PlayerTransform == null)
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        if (playerObject == null)
         {
             Debug.LogError("ERRORE: Nessun GameObject con tag 'Player' trovato nella scena!", this);
-            return; 
+            this.enabled = false;
+            return;
         }
-        PlayerController = PlayerTransform.GetComponentInParent<PlayerController>();
+        var targets = playerObject.GetComponentsInChildren<Transform>();
+        _playerTargets = targets.Where(t => t.name.StartsWith("TargetPoint")).ToArray();
+
+        if (_playerTargets.Length == 0)
+        {
+            Debug.LogWarning("Attenzione: Nessun 'TargetPoint' trovato come figlio del Player. La guardia userà il transform principale del giocatore.", this);
+            _playerTargets = new Transform[] { playerObject.transform };
+        }
+
+        PlayerController = _playerTargets[0].GetComponentInParent<PlayerController>();
+
         _startingPosition = transform.position;
         _startingRotation = transform.rotation;
         patrolState = new PatrolState(this);
@@ -159,24 +172,21 @@ public class GuardAI : MonoBehaviour
     }
     public bool IsPlayerInSight()
     {
+        if (_playerTargets == null || _playerTargets.Length == 0) return false;
+
         Collider[] playersInViewRadius = Physics.OverlapSphere(_visionConeOrigin.position, _viewRadius, _playerMask);
         if (playersInViewRadius.Length > 0)
         {
-            Transform playerRoot = playersInViewRadius[0].transform;
-            Transform targetPoint = playerRoot.Find("TargetPoint");
-
-            if (targetPoint == null)
+            foreach (Transform targetPoint in _playerTargets)
             {
-                targetPoint = playerRoot;
-            }
-
-            Vector3 directionToTarget = (targetPoint.position - _visionConeOrigin.position).normalized;
-            if (Vector3.Angle(_visionConeOrigin.forward, directionToTarget) < _viewAngle / 2)
-            {
-                float distanceToTarget = Vector3.Distance(_visionConeOrigin.position, targetPoint.position);
-                if (!Physics.Raycast(_visionConeOrigin.position, directionToTarget, distanceToTarget, _obstacleMask))
+                Vector3 directionToTarget = (targetPoint.position - _visionConeOrigin.position).normalized;
+                if (Vector3.Angle(_visionConeOrigin.forward, directionToTarget) < _viewAngle / 2)
                 {
-                    return true; 
+                    float distanceToTarget = Vector3.Distance(_visionConeOrigin.position, targetPoint.position);
+                    if (!Physics.Raycast(_visionConeOrigin.position, directionToTarget, distanceToTarget, _obstacleMask))
+                    {
+                        return true;
+                    }
                 }
             }
         }
@@ -262,7 +272,7 @@ public class GuardAI : MonoBehaviour
     {
         if (_isDead) return;
         if (_currentState == fallState ) return;
-
+        AlertManager.TriggerAlert();
         _currentHealth -= damageAmount;
         Debug.Log("Vita della guardia rimasta: " + _currentHealth);
         LastHitTime = Time.time;
@@ -300,27 +310,48 @@ public class GuardAI : MonoBehaviour
 
     public void OnLookAroundFinished()
     {
-       
-        if (CurrentBehaviorType == BehaviorType.Stationary)
+
+        if (AlertManager.IsAlertActive)
         {
-            ChangeState(idleState);
+
+            ChangeState(alertState);
         }
         else
         {
-            ChangeState(patrolState);
+            if (CurrentBehaviorType == BehaviorType.Stationary)
+            {
+                ChangeState(idleState);
+            }
+            else
+            {
+                ChangeState(patrolState);
+            }
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log($"<color=yellow>TRIGGER DEBUG:</color> Oggetto '{gameObject.name}' ha rilevato una collisione con '{other.gameObject.name}' (Tag: {other.tag})", gameObject);
+
+        if (_isDead)
+        {
+            Debug.Log("<color=grey>TRIGGER DEBUG:</color> Guardia morta, ignoro il trigger.", gameObject);
+            return;
+        }
+
         if (other.CompareTag("Noise"))
         {
-            if (_currentState != chaseState && _currentState != fallState && _currentState != sideHitState)
+            Debug.Log($"<color=lightblue>TRIGGER DEBUG:</color> È un rumore! Lo stato attuale della guardia è: {_currentState}", gameObject);
+
+            if (_currentState == searchingState || _currentState == chaseState || _currentState == fallState || _currentState == sideHitState)
             {
-                Debug.Log(gameObject.name + " ha sentito un rumore!");
-                LastKnownPlayerPosition = other.transform.position;
-                ChangeState(searchingState);
+                Debug.Log("<color=orange>TRIGGER DEBUG:</color> Guardia già in stato attivo. Rumore ignorato.", gameObject);
+                return; 
             }
+
+            Debug.Log("<color=green>TRIGGER DEBUG:</color> Guardia in stato tranquillo, REAGISCO al rumore!", gameObject);
+            LastKnownPlayerPosition = other.transform.position;
+            ChangeState(searchingState);
         }
     }
 

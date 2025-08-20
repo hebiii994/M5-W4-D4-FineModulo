@@ -13,7 +13,13 @@ public class DeadState : GuardBaseState
             _guard.Agent.isStopped = true;
             _guard.Agent.enabled = false;
         }
-            Debug.Log("Guardia morta!");
+        Transform minimapIcon = _guard.transform.Find("MinimapIcon");
+        if (minimapIcon != null)
+        {
+            // Se lo trova, disattiva il suo GameObject
+            minimapIcon.gameObject.SetActive(false);
+        }
+        Debug.Log("Guardia morta!");
     }
 
 

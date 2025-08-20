@@ -7,6 +7,7 @@ public class FootstepsSounds : MonoBehaviour
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioClip[] _normalFootsteps;
     [SerializeField] private AudioClip[] _waterFootsteps;
+    [SerializeField] private GameObject _noisePrefab;
 
     [SerializeField] private float _raycastDistance = 1.2f;
     [SerializeField] private LayerMask _terrainLayer;
@@ -60,6 +61,10 @@ public class FootstepsSounds : MonoBehaviour
                 {
                     _audioSource.PlayOneShot(randomClip);
                     _lastStepTime = Time.time;
+                    if (_noisePrefab != null)
+                    {
+                        Instantiate(_noisePrefab, transform.position, Quaternion.identity);
+                    }
                 }
                 else
                 {

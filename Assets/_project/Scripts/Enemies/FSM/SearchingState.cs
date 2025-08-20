@@ -35,6 +35,8 @@ public class SearchingState : GuardBaseState
 
             if (!_guard.Agent.hasPath || _guard.Agent.velocity.sqrMagnitude == 0f)
             {
+                _guard.Agent.velocity = Vector3.zero;
+                _guard.Agent.isStopped = true;
                 _guard.ChangeState(_guard.lookAroundState);
             }
         }

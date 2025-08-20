@@ -519,7 +519,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Look Around 0
+  m_Name: Look Around
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -584,7 +584,7 @@ AnimatorStateMachine:
     m_Position: {x: 480, y: 170, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5803144659269178432}
-    m_Position: {x: 180, y: 580, z: 0}
+    m_Position: {x: 170, y: 590, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2907912643665126881}
     m_Position: {x: 680, y: 370, z: 0}
