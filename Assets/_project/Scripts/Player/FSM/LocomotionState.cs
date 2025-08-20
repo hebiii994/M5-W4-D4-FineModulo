@@ -7,6 +7,7 @@ public class LocomotionState : PlayerBaseState
     public enum MovementMode { WASD, PointAndClick }
     private MovementMode _currentMode = MovementMode.WASD;
 
+
     public LocomotionState(PlayerController controller) : base(controller) { }
     public override void OnEnter()
     {
@@ -157,6 +158,10 @@ public class LocomotionState : PlayerBaseState
     private void UpdateAnimator()
     {
         float speed = _controller.Agent.velocity.magnitude;
+        if (speed < 0.1f)
+        {
+            speed = 0f;
+        }
         _controller.Animator.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
     }
 

@@ -47,6 +47,11 @@ public class WallPressState : PlayerBaseState
             return;
         }
 
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            _controller.Combat.KnockOnWall();
+        }
+
         HandleWallMovement();
     }
 

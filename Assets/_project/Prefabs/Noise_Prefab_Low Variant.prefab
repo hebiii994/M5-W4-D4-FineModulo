@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3571963151623985950, guid: 8a790ffbcb4331b43a13273be4ea72e4, type: 3}
       propertyPath: m_Radius
-      value: 3
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3605021947420417901, guid: 8a790ffbcb4331b43a13273be4ea72e4, type: 3}
       propertyPath: m_LocalPosition.x

@@ -1187,7 +1187,6 @@ GameObject:
   - component: {fileID: 5006551289792500485}
   - component: {fileID: 2479977745331171108}
   - component: {fileID: 7952087046903836522}
-  - component: {fileID: 2156099287227635964}
   - component: {fileID: 2595210560101396074}
   - component: {fileID: 529054817190926340}
   - component: {fileID: 6753501202520528956}
@@ -1212,7 +1211,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4510794315407554067}
   - {fileID: 1119448271859802329}
@@ -1318,22 +1317,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8192
   _minTimeBetweenSteps: 0.25
---- !u!114 &2156099287227635964
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5713855829015498471}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9fbbd5130c1f6144f8dba9e58d8bf209, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _animator: {fileID: 5272773164570393653}
-  _agent: {fileID: 6753501202520528956}
-  _animationSmoothFactor: 10
-  _playerController: {fileID: 2479977745331171108}
 --- !u!114 &2595210560101396074
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1353,7 +1336,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4096
   _noisePrefab: {fileID: 7788769983325008194, guid: 8a790ffbcb4331b43a13273be4ea72e4, type: 3}
-  _attackDamage: 15
+  _attackDamage: 25
 --- !u!114 &529054817190926340
 MonoBehaviour:
   m_ObjectHideFlags: 0
