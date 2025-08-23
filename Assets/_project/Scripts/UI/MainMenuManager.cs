@@ -80,8 +80,7 @@ public class MainMenuManager : MonoBehaviour
         _mainMenuPanel.SetActive(false);
         _optionsPanel.SetActive(true);
         _optionsExitButton.SetActive(true);
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(_firstSelectedButtonOptions);
+        StartCoroutine(SetSelectedObjectAfterFrame(_firstSelectedButton));
 
     }
 
@@ -89,16 +88,23 @@ public class MainMenuManager : MonoBehaviour
     {
         _optionsPanel.SetActive(false);
         _mainMenuPanel.SetActive(true);
-        _optionsExitButton.SetActive(false);
+        _optionsExitButton.SetActive(false); 
+        StartCoroutine(SetSelectedObjectAfterFrame(_firstSelectedButton));
+    }
+
+    private IEnumerator SetSelectedObjectAfterFrame(GameObject selectedObject)
+    {
+        yield return new WaitForEndOfFrame();
+
         EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(_firstSelectedButton);
+        EventSystem.current.SetSelectedGameObject(selectedObject);
     }
 
     public void StartGame()
     {
         PlaySound(_confirmSound);
         Debug.Log("Avvio del gioco...");
-        SceneManager.LoadScene("Level_01");
+        SceneManager.LoadScene("Heliport");
     }
 
 

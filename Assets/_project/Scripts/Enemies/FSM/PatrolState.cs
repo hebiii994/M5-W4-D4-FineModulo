@@ -6,9 +6,13 @@ public class PatrolState : GuardBaseState
 {
     public PatrolState(GuardAI guard) : base(guard) { }
 
+    public override int Priority => 0;
     public override void OnEnter()
     {
-        _guard.Agent.enabled = true;
+        if (!_guard.Agent.enabled)
+            _guard.Agent.enabled = true;
+
+        _guard.Agent.isStopped = false;
         _guard.Agent.updateRotation = true;
         _guard.Agent.speed = _guard.PatrolSpeed;
 

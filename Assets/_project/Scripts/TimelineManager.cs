@@ -4,24 +4,25 @@ using UnityEngine.UI;
 public class TimelineManager : MonoBehaviour
 {
     [Header("Riferimenti")]
-    [SerializeField] private PlayableDirector director;
-    [SerializeField] private Cinemachine.CinemachineVirtualCamera introVcam;
-    [SerializeField] private Cinemachine.CinemachineVirtualCamera playerVcam;
-    [SerializeField] private TimelinePlayerController playerInputController;
+    [SerializeField] private PlayableDirector _director;
+    [SerializeField] private Cinemachine.CinemachineVirtualCamera _introVcam;
+    [SerializeField] private Cinemachine.CinemachineVirtualCamera _playerVcam;
+    [SerializeField] private TimelinePlayerController _playerInputController;
 
     [Header("UI per lo Skip")]
-    [SerializeField] private GameObject skipPromptUI;
-    [SerializeField] private Image fillMeterImage;
+    [SerializeField] private GameObject _skipPromptUI;
+    [SerializeField] private Image _fillMeterImage;
+    [SerializeField] private GameObject _keyPanel;
 
     [Header("Impostazioni Skip")]
-    [SerializeField] private float timeToSkip = 1.5f;
+    [SerializeField] private float _timeToSkip = 1.5f;
     private float _skipTimer = 0f;
     private bool _canSkip = true;
 
     private void Awake()
     {
-        if (director == null) director = GetComponent<PlayableDirector>();
-        if (fillMeterImage != null) fillMeterImage.fillAmount = 0;
+        if (_director == null) _director = GetComponent<PlayableDirector>();
+        if (_fillMeterImage != null) _fillMeterImage.fillAmount = 0;
     }
 
     private void Update()
@@ -31,8 +32,8 @@ public class TimelineManager : MonoBehaviour
         if (Input.GetKey(KeyCode.X))
         {
             _skipTimer += Time.deltaTime;
-            fillMeterImage.fillAmount = _skipTimer / timeToSkip;
-            if (_skipTimer >= timeToSkip)
+            _fillMeterImage.fillAmount = _skipTimer / _timeToSkip;
+            if (_skipTimer >= _timeToSkip)
             {
                 Skip();
             }
@@ -40,7 +41,7 @@ public class TimelineManager : MonoBehaviour
         else 
         {
             _skipTimer = 0f;
-            fillMeterImage.fillAmount = 0f;
+            _fillMeterImage.fillAmount = 0f;
         }
     }
 
@@ -52,13 +53,21 @@ public class TimelineManager : MonoBehaviour
 
         Debug.Log("Timeline saltata!");
 
-        director.Stop();
-        if (playerInputController != null)
+        _director.Stop();
+        if (_playerInputController != null)
         {
-            playerInputController.EnableControl();
+            _playerInputController.EnableControl();
+        }
+        if (_playerVcam != null)
+        {
+            _playerVcam.m_Lens.NearClipPlane = -2.0f;
+        }
+        if ( _keyPanel != null)
+        {
+            _keyPanel.SetActive(true);
         }
 
-        if (skipPromptUI != null) skipPromptUI.SetActive(false);
+        if (_skipPromptUI != null) _skipPromptUI.SetActive(false);
 
         gameObject.SetActive(false);
     }

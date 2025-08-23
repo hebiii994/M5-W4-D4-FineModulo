@@ -15,7 +15,7 @@ public class GameOverScreen : MonoBehaviour
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioClip _gameOverMusic;
 
-    private string _gameLevelSceneName = "Level_01";
+    private string _gameLevelSceneName = "Heliport";
     private string _mainMenuSceneName = "MainMenu";
 
     void Awake()

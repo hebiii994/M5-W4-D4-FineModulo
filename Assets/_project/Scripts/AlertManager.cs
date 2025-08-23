@@ -88,6 +88,14 @@ public static class AlertManager
 
         OnAlertPositionBroadcast?.Invoke(position);
     }
+
+    public static void Reset()
+    {
+        AlertTimer = 0;
+        _activeChasers.Clear();
+        _lastTimePlayerWasSeen = 0;
+        Debug.Log("--- AlertManager Resettato ---");
+    }
 }
 
 

@@ -6,6 +6,8 @@ public abstract class GuardBaseState
 {
     protected GuardAI _guard;
 
+    public virtual int Priority => 0;
+
     public GuardBaseState(GuardAI guard)
     {
         _guard = guard;

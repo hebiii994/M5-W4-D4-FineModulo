@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
-    [SerializeField] private int _maxHealth = 100;
-    private int _currentHealth;
+    [SerializeField] private float _maxHealth = 100f;
+    private float _currentHealth;
 
     [SerializeField] private Slider _healthSlider;
     [SerializeField] private Animator _animator;
@@ -28,7 +28,7 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int damageAmount)
+    public void TakeDamage(float damageAmount)
     {
         _currentHealth -= damageAmount;
 
@@ -71,6 +71,7 @@ public class PlayerHealth : MonoBehaviour
         if (_animator != null)
         {
             _animator.SetTrigger("Die");
+            _playerController.Agent.isStopped = true;
         }
         StartCoroutine(GameOverSequence());
     }

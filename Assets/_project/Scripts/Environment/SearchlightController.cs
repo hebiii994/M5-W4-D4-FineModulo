@@ -19,6 +19,7 @@ public class SearchlightController : MonoBehaviour
     private Light _spotlight;
     private Transform[] _playerTargets;
     private Quaternion _initialRotation;
+    private bool _isAlerted = false;
 
     void Start()
     {
@@ -53,12 +54,20 @@ public class SearchlightController : MonoBehaviour
     {
         if (IsPlayerInSight())
         {
-            AlertManager.BroadcastAlert(_playerTargets[0].position);
-            _spotlight.color = _alertColor;
+            if (!_isAlerted)
+            {
+                _isAlerted = true; 
+                AlertManager.BroadcastAlert(_playerTargets[0].position);
+                _spotlight.color = _alertColor;
+            }
         }
         else
         {
-            _spotlight.color = _defaultColor;
+            if (_isAlerted)
+            {
+                _isAlerted = false;
+                _spotlight.color = _defaultColor;
+            }
         }
     }
 

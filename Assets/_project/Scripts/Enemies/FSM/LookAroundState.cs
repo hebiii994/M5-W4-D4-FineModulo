@@ -5,9 +5,10 @@ using UnityEngine;
 public class LookAroundState : GuardBaseState
 {
     public LookAroundState(GuardAI guard) : base(guard) { }
-
+    public override int Priority => 10;
     public override void OnEnter()
     {
+        _guard.Agent.velocity = Vector3.zero;
         _guard.Agent.enabled = true;
         if (_guard.Agent.hasPath)
         {
@@ -21,6 +22,11 @@ public class LookAroundState : GuardBaseState
 
     public override void OnUpdate()
     {
+        if (!AlertManager.IsAlertActive)
+        {
+            _guard.ReturnToDefaultState();
+            return;
+        }
 
         if (_guard.IsPlayerInSight())
         {

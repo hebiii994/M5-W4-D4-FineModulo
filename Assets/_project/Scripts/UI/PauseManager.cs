@@ -42,9 +42,7 @@ public class PauseManager : MonoBehaviour
         isPaused = false;
         _pauseMenuPanel.SetActive(false);
         Time.timeScale = 1f;
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+ 
     }
 
     public void OpenOptions()

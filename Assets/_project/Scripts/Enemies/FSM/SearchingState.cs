@@ -6,11 +6,13 @@ public class SearchingState : GuardBaseState
 {
     private bool _hasSetDestination;
 
+    public override int Priority => 20;
     public SearchingState(GuardAI guard) : base(guard) { }
     public override void OnEnter()
     {
         Debug.Log("Guardia: Entro in stato Searching (movimento).");
-        _guard.Agent.enabled = true;
+        //_guard.Agent.enabled = true;
+        _guard.Agent.isStopped = false;
         _guard.Agent.updateRotation = true;
         _guard.Agent.speed = _guard.PatrolSpeed;
         _hasSetDestination = false;
@@ -18,6 +20,11 @@ public class SearchingState : GuardBaseState
     
     public override void OnUpdate()
     {
+        if (!AlertManager.IsAlertActive)
+        {
+            _guard.ReturnToDefaultState();
+            return;
+        }
         if (!_hasSetDestination && _guard.Agent.isOnNavMesh)
         {
             _guard.Agent.SetDestination(_guard.LastKnownPlayerPosition);

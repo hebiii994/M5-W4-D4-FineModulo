@@ -5,12 +5,12 @@ using UnityEngine;
 public class FallState : GuardBaseState
 {
     public FallState(GuardAI guard) : base(guard) { }
-
+    public override int Priority => 90;
     public override void OnEnter()
     {
         _guard.Agent.velocity = Vector3.zero;
         _guard.Agent.isStopped = true;
-        _guard.Agent.enabled = false;
+        //_guard.Agent.enabled = false;
     }
 
     public override void OnUpdate()
@@ -19,6 +19,6 @@ public class FallState : GuardBaseState
 
     public override void OnExit()
     {
-       
+        _guard.Agent.isStopped = false;
     }
 }

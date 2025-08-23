@@ -16,19 +16,23 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float _musicFadeDuration = 2.0f;
 
     private Coroutine _musicFadeCoroutine;
+    private bool _sceneReferencesLoaded = false;
 
     private void OnEnable()
     {
+        SceneManager.sceneLoaded += OnSceneLoaded;
         AlertManager.OnAlertStatusChanged += HandleAlertStatusChanged;
     }
 
     private void OnDisable()
     {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
         AlertManager.OnAlertStatusChanged -= HandleAlertStatusChanged;
     }
 
     private void Awake()
     {
+        AlertManager.Reset();
         if (Instance == null )
         {
             Instance = this;
@@ -47,11 +51,21 @@ public class GameManager : MonoBehaviour
     }
     private void Update()
     {
-        AlertManager.Tick(Time.deltaTime);
-        UpdateAlertUI();
+        if (_sceneReferencesLoaded && SceneManager.GetActiveScene().name == "Heliport")
+        {
+            AlertManager.Tick(Time.deltaTime);
+            if (_sceneReferencesLoaded)
+            {
+                UpdateAlertUI();
+            }
+        }
     }
     private void UpdateAlertUI()
     {
+        if (_alertPanel == null || !_alertPanel.activeSelf || _alertTimerText == null)
+        {
+            return;
+        }
         if (_alertTimerText == null) return;
         if (!_alertPanel.activeSelf || _alertTimerText == null) return;
         float timer = AlertManager.AlertTimer;
@@ -60,7 +74,60 @@ public class GameManager : MonoBehaviour
         _alertTimerText.text = $"{seconds:D2}:{milliseconds:D2}";
 
     }
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "Heliport")
+        {
+            AlertManager.Reset();
+            FindSceneReferences();
+        }
+        else
+        {
+            if (_ambientAudioSource != null) _ambientAudioSource.Stop();
+            if (_alertAudioSource != null) _alertAudioSource.Stop();
+            _sceneReferencesLoaded = false;
+            _minimapPanel = null;
+            _alertPanel = null;
+            _alertTimerText = null;
+            _ambientAudioSource = null;
+            _alertAudioSource = null;
+        }
+    }
 
+    private void FindSceneReferences()
+    {
+        Canvas canvas = FindObjectOfType<Canvas>();
+        if (canvas != null)
+        {
+            Transform minimapTransform = canvas.transform.Find("Minimap_Panel");
+            if (minimapTransform != null) _minimapPanel = minimapTransform.gameObject;
+
+            Transform alertTransform = canvas.transform.Find("Alert_Panel");
+            if (alertTransform != null) _alertPanel = alertTransform.gameObject;
+        }
+            
+
+        if (_alertPanel != null)
+        {
+            _alertTimerText = _alertPanel.GetComponentInChildren<TextMeshProUGUI>(true);
+            _alertPanel.SetActive(false);
+        }
+        if (_minimapPanel != null)
+        {
+            _minimapPanel.SetActive(true);
+        }
+
+
+        GameObject ambientSourceObject = GameObject.FindWithTag("AmbientMusicSource");
+        if (ambientSourceObject != null) _ambientAudioSource = ambientSourceObject.GetComponent<AudioSource>();
+
+        GameObject alertSourceObject = GameObject.FindWithTag("AlertMusicSource");
+        if (alertSourceObject != null) _alertAudioSource = alertSourceObject.GetComponent<AudioSource>();
+
+        HandleAlertStatusChanged(false);
+        _sceneReferencesLoaded = true;
+        Debug.Log("Riferimenti della scena caricati correttamente.");
+    }
     private void HandleAlertStatusChanged(bool isAlerted)
     {
         if (_minimapPanel != null) _minimapPanel.SetActive(!isAlerted);

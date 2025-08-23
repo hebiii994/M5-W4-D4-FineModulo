@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class AttackState : GuardBaseState
 {
-    private float _attackTimer;
+   
     public AttackState(GuardAI guard) : base(guard) { }
-
+    public override int Priority => 60;
     public override void OnEnter()
     {
         _guard.Agent.velocity = Vector3.zero;
@@ -16,18 +16,12 @@ public class AttackState : GuardBaseState
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(directionToPlayer.x, 0, directionToPlayer.z));
         _guard.transform.rotation = lookRotation;
         _guard.Animator.SetTrigger("Attack");
-        _attackTimer = _guard.AttackRate;
+
     }
 
     public override void OnUpdate()
     {
-        _attackTimer -= Time.deltaTime;
 
-
-        if (_attackTimer <= 0f)
-        {
-            _guard.ChangeState(_guard.chaseState);
-        }
     }
 
     public override void OnExit()

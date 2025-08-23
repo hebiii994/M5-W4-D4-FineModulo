@@ -10,9 +10,10 @@ public class IdleState : GuardBaseState
 
     public IdleState(GuardAI guard) : base(guard) { }
 
+    public override int Priority => 0;
     public override void OnEnter()
     {
-        _guard.Agent.enabled = true;
+        //_guard.Agent.enabled = true;
         _guard.Agent.updateRotation = true;
         _guard.Agent.SetDestination(_guard.StartingPosition);
         _guard.Agent.speed = _guard.PatrolSpeed;

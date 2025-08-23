@@ -39,6 +39,7 @@ public class GuardAI : MonoBehaviour
     public float LastHitTime { get; private set; } = -99f; 
     public float StunDuration => _stunDurationAfterHit;
 
+
     //Idle variables
     private Vector3 _startingPosition;
     private Quaternion _startingRotation;
@@ -82,6 +83,10 @@ public class GuardAI : MonoBehaviour
 
     //States
     private GuardBaseState _currentState;
+    private float _lastStateChangeTime;
+    private const float STATE_TRANSITION_COOLDOWN = 0.1f;
+
+    // public states
     public PatrolState patrolState;
     public ChaseState chaseState;
     public SearchingState searchingState;
@@ -140,11 +145,7 @@ public class GuardAI : MonoBehaviour
         alertState = new AlertState(this);
         attackState = new AttackState(this);
         deadState = new DeadState(this);
-    }
-   
 
-    private void Start()
-    {
         _currentHealth = _maxHealth;
         _visionConeRenderer.ViewAngle = _viewAngle;
         _visionConeRenderer.ViewRadius = _viewRadius;
@@ -158,17 +159,33 @@ public class GuardAI : MonoBehaviour
             ChangeState(idleState);
         }
     }
+   
 
     private void Update()
     {
         _currentState?.OnUpdate();
     }
 
-    public void ChangeState(GuardBaseState newState)
+    public void ChangeState(GuardBaseState newState, bool force = false)
     {
-        _currentState?.OnExit();    
+        if (_currentState != null && Time.time - _lastStateChangeTime < STATE_TRANSITION_COOLDOWN && !force)
+        {
+            return;
+        }
+        if (!force)
+        {
+            if (_currentState != null && newState.Priority < _currentState.Priority)
+            {
+                return;
+            }
+        }
+        Debug.Log($"{name}: State change from [{_currentState?.GetType().Name ?? "NONE"}] -> [{newState.GetType().Name}] (Forced: {force})");
+
+        _currentState?.OnExit();
         _currentState = newState;
-        _currentState.OnEnter();    
+        _currentState.OnEnter();
+
+        _lastStateChangeTime = Time.time;
     }
     public bool IsPlayerInSight()
     {
@@ -185,6 +202,7 @@ public class GuardAI : MonoBehaviour
                     float distanceToTarget = Vector3.Distance(_visionConeOrigin.position, targetPoint.position);
                     if (!Physics.Raycast(_visionConeOrigin.position, directionToTarget, distanceToTarget, _obstacleMask))
                     {
+                        Debug.Log("Guardia: Ho visto il player!");
                         return true;
                     }
                 }
@@ -192,6 +210,19 @@ public class GuardAI : MonoBehaviour
         }
         return false;
     }
+
+    public void ReturnToDefaultState()
+    {
+        if (CurrentBehaviorType == BehaviorType.Patrol)
+        {
+            ChangeState(patrolState, true);
+        }
+        else
+        {
+            ChangeState(idleState, true);
+        }
+    }
+
     public void SetCurrentWaypointIndex(int index) 
     {
         _currentWaypointIndex = index;
@@ -229,11 +260,13 @@ public class GuardAI : MonoBehaviour
 
         if (hits.Length > 0)
         {
-            if (hits[0].TryGetComponent(out PlayerHealth playerHealth))
+            PlayerHealth playerHealth = hits[0].GetComponentInParent<PlayerHealth>();
+
+            if (playerHealth != null)
             {
                 Debug.Log("<color=red>COLPO DELLA GUARDIA A SEGNO!</color> Danno inflitto.");
                 playerHealth.TakeDamage((int)_damageAmount);
-                UpdateLastDamageTime(); 
+                UpdateLastDamageTime();
             }
         }
         else
@@ -261,6 +294,7 @@ public class GuardAI : MonoBehaviour
 
             ChangeState(alertState);
         }
+        Debug.Log($"{name} received an alert for position {alertPosition}. Current state is {_currentState.GetType().Name} with priority {_currentState.Priority}");
     }
     public void BroadcastAlert()
     {
@@ -313,11 +347,12 @@ public class GuardAI : MonoBehaviour
 
         if (AlertManager.IsAlertActive)
         {
-
+            Debug.Log("Allarme ancora attivo. Ritorno in AlertState per rivalutare.");
             ChangeState(alertState);
         }
         else
         {
+            Debug.Log("Allarme terminato. Ritorno alla routine.");
             if (CurrentBehaviorType == BehaviorType.Stationary)
             {
                 ChangeState(idleState);
@@ -343,7 +378,7 @@ public class GuardAI : MonoBehaviour
         {
             Debug.Log($"<color=lightblue>TRIGGER DEBUG:</color> È un rumore! Lo stato attuale della guardia è: {_currentState}", gameObject);
 
-            if (_currentState == searchingState || _currentState == chaseState || _currentState == fallState || _currentState == sideHitState)
+            if (_currentState == searchingState || _currentState == chaseState || _currentState == fallState || _currentState == sideHitState || _currentState == attackState)
             {
                 Debug.Log("<color=orange>TRIGGER DEBUG:</color> Guardia già in stato attivo. Rumore ignorato.", gameObject);
                 return; 

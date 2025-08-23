@@ -3,6 +3,7 @@ using UnityEngine;
 public class TimelinePlayerController : MonoBehaviour
 {
     [SerializeField] private PlayerController _playerController;
+    [SerializeField] private GameObject _keyPanel;
 
     private void Awake()
     {
@@ -25,6 +26,10 @@ public class TimelinePlayerController : MonoBehaviour
         if (_playerController != null)
         {
             _playerController.enabled = true;
+            if (_keyPanel != null)
+            {
+                _keyPanel.SetActive(true);
+            }
             Debug.Log("Controllo del giocatore ABILITATO dalla Timeline.");
         }
     }

@@ -4,14 +4,14 @@ using UnityEngine.AI;
 public class DeadState : GuardBaseState
 {
     public DeadState(GuardAI guard) : base(guard) { }
-
+    public override int Priority => 100;
     public override void OnEnter()
     {
         if (_guard.Agent.isActiveAndEnabled)
         {
             _guard.Agent.velocity = Vector3.zero;
             _guard.Agent.isStopped = true;
-            _guard.Agent.enabled = false;
+            //_guard.Agent.enabled = false;
         }
         Transform minimapIcon = _guard.transform.Find("MinimapIcon");
         if (minimapIcon != null)
