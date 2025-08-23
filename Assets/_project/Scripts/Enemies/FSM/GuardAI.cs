@@ -61,7 +61,7 @@ public class GuardAI : MonoBehaviour
 
     //alarm variables
     [SerializeField] private float _alertRadius = 15f;
-    public static event Action<Vector3> OnGuardAlerted;
+    
 
     //combat variables
     [SerializeField] private float _stopDistance = 1.5f; 
@@ -97,12 +97,12 @@ public class GuardAI : MonoBehaviour
 
     private void OnEnable()
     {
-        OnGuardAlerted += HandleAlert;
+        AlertManager.OnAlertPositionBroadcast += HandleAlert;
     }
 
     private void OnDisable()
     {
-        OnGuardAlerted -= HandleAlert;
+        AlertManager.OnAlertPositionBroadcast -= HandleAlert;
     }
 
     private void Awake()
@@ -265,7 +265,7 @@ public class GuardAI : MonoBehaviour
     public void BroadcastAlert()
     {
         Debug.Log(gameObject.name + " sta lanciando un allarme a tutte le altre unità!");
-        OnGuardAlerted?.Invoke(PlayerTransform.position);
+        AlertManager.BroadcastAlert(PlayerTransform.position);
     }
 
     public void GetHit(int comboStep, int damageAmount)

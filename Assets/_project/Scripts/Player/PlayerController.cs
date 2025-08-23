@@ -161,7 +161,29 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void OnAttackFinished()
+    public IEnumerator TraverseTunnel(Vector3 exitPosition)
+    {
+        Agent.enabled = false;
+        CanMove = false; 
+
+        float journeyTime = 1.5f; 
+        float elapsedTime = 0;
+        Vector3 startingPos = transform.position;
+
+        while (elapsedTime < journeyTime)
+        {
+            transform.position = Vector3.Lerp(startingPos, exitPosition, (elapsedTime / journeyTime));
+            elapsedTime += Time.deltaTime;
+            yield return null; 
+        }
+
+        transform.position = exitPosition;
+        Agent.enabled = true;
+        Agent.Warp(transform.position);
+        CanMove = true;
+    }
+
+public void OnAttackFinished()
     {
         // Se siamo in PlayerAttackState, notifichiamogli che l'animazione è finita.
         if (_currentState is PlayerAttackState attackState)

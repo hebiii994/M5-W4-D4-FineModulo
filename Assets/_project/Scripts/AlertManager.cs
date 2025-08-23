@@ -6,6 +6,7 @@ using System;
 public static class AlertManager
 {
     public static event Action<bool> OnAlertStatusChanged;
+    public static event Action<Vector3> OnAlertPositionBroadcast;
     public static float AlertTimer { get; private set; }
 
     // Constants
@@ -79,6 +80,13 @@ public static class AlertManager
         {
             _lastTimePlayerWasSeen = Time.time;
         }
+    }
+
+    public static void BroadcastAlert(Vector3 position)
+    {
+        TriggerAlert();
+
+        OnAlertPositionBroadcast?.Invoke(position);
     }
 }
 
