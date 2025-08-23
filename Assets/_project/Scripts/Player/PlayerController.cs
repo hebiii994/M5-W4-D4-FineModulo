@@ -14,6 +14,9 @@ public class PlayerController : MonoBehaviour
     public CrawlState crawlState;
     public HurtState hurtState;
 
+    // --- GESTIONE TRANSIZIONI TRA STATI ---
+    private float _lastStateChangeTime;
+    private const float STATE_TRANSITION_COOLDOWN = 0.2f;
 
     // --- RIFERIMENTI AI COMPONENTI ---
     public NavMeshAgent Agent { get; private set; }
@@ -102,6 +105,11 @@ public class PlayerController : MonoBehaviour
 
     public void ChangeState(PlayerBaseState newState)
     {
+        if (_currentState != null && Time.time - _lastStateChangeTime < STATE_TRANSITION_COOLDOWN)
+        {
+            return; 
+        }
+        _lastStateChangeTime = Time.time;
         _currentState?.OnExit();
         _currentState = newState;
         _currentState.OnEnter();

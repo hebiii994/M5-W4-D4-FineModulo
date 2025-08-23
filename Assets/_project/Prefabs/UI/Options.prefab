@@ -144,10 +144,10 @@ RectTransform:
   - {fileID: 4989506199355638629}
   m_Father: {fileID: 2819810783260485451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 36.18}
+  m_AnchorMin: {x: 0.34645313, y: 0.46877778}
+  m_AnchorMax: {x: 0.6537032, y: 0.518}
+  m_AnchoredPosition: {x: 1.0001221, y: -0.49993896}
+  m_SizeDelta: {x: -75.41998, y: -34.820007}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8214749973544470090
 CanvasRenderer:
@@ -240,7 +240,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: -4.602478, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -354,10 +354,10 @@ RectTransform:
   - {fileID: 7349125359686460235}
   m_Father: {fileID: 2819810783260485451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 36.18}
+  m_AnchorMin: {x: 0.37029687, y: 0.319}
+  m_AnchorMax: {x: 0.6342188, y: 0.36961114}
+  m_AnchoredPosition: {x: -4.499878, y: 7.833435}
+  m_SizeDelta: {x: -97.92993, y: -36.820007}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &48843047457389869
 CanvasRenderer:
@@ -450,7 +450,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: -6.9066772, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1061,11 +1061,11 @@ RectTransform:
   - {fileID: 5245373549565914724}
   m_Father: {fileID: 2902322740664688944}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -100}
-  m_SizeDelta: {x: 320, y: 60}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: -0.00000011920929, y: -110}
+  m_SizeDelta: {x: 316, y: 57}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &3201196666546237143
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1486,10 +1486,10 @@ RectTransform:
   - {fileID: 2671375232816699035}
   m_Father: {fileID: 2819810783260485451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 36.18}
+  m_AnchorMin: {x: 0.33782816, y: 0.5383056}
+  m_AnchorMax: {x: 0.6744376, y: 0.65638894}
+  m_AnchoredPosition: {x: -14.499878, y: 59.166687}
+  m_SizeDelta: {x: -90.90991, y: -136.82}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8476442010212333826
 CanvasRenderer:
@@ -1582,7 +1582,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: -16.00174, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1977,7 +1977,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2819810783260485451}
-  - component: {fileID: 581812286979896204}
   m_Layer: 5
   m_Name: OptionsPanel
   m_TagString: Untagged
@@ -2007,29 +2006,3 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &581812286979896204
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8947037518894943714}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 20
-    m_Bottom: 0
-  m_ChildAlignment: 4
-  m_Spacing: -800
-  m_ChildForceExpandWidth: 0
-  m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 1
-  m_ChildControlHeight: 0
-  m_ChildScaleWidth: 1
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0

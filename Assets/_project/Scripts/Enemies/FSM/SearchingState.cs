@@ -20,11 +20,11 @@ public class SearchingState : GuardBaseState
     
     public override void OnUpdate()
     {
-        if (!AlertManager.IsAlertActive)
-        {
-            _guard.ReturnToDefaultState();
-            return;
-        }
+        //if (!AlertManager.IsAlertActive)
+        //{
+        //    _guard.ReturnToDefaultState();
+        //    return;
+        //}
         if (!_hasSetDestination && _guard.Agent.isOnNavMesh)
         {
             _guard.Agent.SetDestination(_guard.LastKnownPlayerPosition);
