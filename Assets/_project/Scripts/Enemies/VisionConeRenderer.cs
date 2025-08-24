@@ -19,23 +19,6 @@ public class VisionConeRenderer : MonoBehaviour
     }
 
 
-    private void OnEnable()
-    {
-        if (DebugManager.Instance != null)
-        {
-            DebugManager.Instance.RegisterCone(this);
-            ToggleRenderer(DebugManager.Instance.IsDebugModeEnabled);
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (DebugManager.Instance != null)
-        {
-            DebugManager.Instance.UnregisterCone(this);
-        }
-    }
-
     public void ToggleRenderer(bool isEnabled)
     {
         if (_lineRenderer != null)
@@ -45,8 +28,23 @@ public class VisionConeRenderer : MonoBehaviour
     }
     void Start()
     {
+        if (DebugManager.Instance != null)
+        {
+            DebugManager.Instance.RegisterCone(this);
+            ToggleRenderer(DebugManager.Instance.IsDebugModeEnabled);
+        }
         _lineRenderer.positionCount = _segments + 1;
     }
+
+
+    private void OnDisable()
+    {
+        if (DebugManager.Instance != null)
+        {
+            DebugManager.Instance.UnregisterCone(this);
+        }
+    }
+
     void Update()
     {
         if (_lineRenderer != null && _lineRenderer.enabled)

@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DebugManager : MonoBehaviour
 {
-    [SerializeField] private OnScreenConsole _console;
+    private OnScreenConsole _console;
     public static DebugManager Instance { get; private set; }
 
     public bool IsDebugModeEnabled { get; private set; }
@@ -21,8 +22,30 @@ public class DebugManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        _console = FindObjectOfType<OnScreenConsole>(true);
+        if (_console != null)
+        {
+            _console.TogglePanel(IsDebugModeEnabled);
+        }
+    }
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        _console = FindObjectOfType<OnScreenConsole>(true);
+        if (_console != null)
+        {
+            _console.TogglePanel(IsDebugModeEnabled);
+        }
+    }
     public void RegisterCone(VisionConeRenderer cone)
     {
         if (!_activeCones.Contains(cone))
