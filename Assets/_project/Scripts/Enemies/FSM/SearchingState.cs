@@ -17,14 +17,14 @@ public class SearchingState : GuardBaseState
         _guard.Agent.speed = _guard.PatrolSpeed;
         _hasSetDestination = false;
     }
-    
+
     public override void OnUpdate()
     {
-        //if (!AlertManager.IsAlertActive)
-        //{
-        //    _guard.ReturnToDefaultState();
-        //    return;
-        //}
+        if (!AlertManager.IsAlertActive)
+        {
+            _guard.ReturnToDefaultState();
+            return;
+        }
         if (!_hasSetDestination && _guard.Agent.isOnNavMesh)
         {
             _guard.Agent.SetDestination(_guard.LastKnownPlayerPosition);
@@ -40,18 +40,16 @@ public class SearchingState : GuardBaseState
         if (!_guard.Agent.pathPending && _guard.Agent.remainingDistance <= _guard.Agent.stoppingDistance)
         {
 
-            if (!_guard.Agent.hasPath || _guard.Agent.velocity.sqrMagnitude == 0f)
-            {
-                _guard.Agent.velocity = Vector3.zero;
-                _guard.Agent.isStopped = true;
-                _guard.ChangeState(_guard.lookAroundState);
-            }
+            _guard.Agent.velocity = Vector3.zero;
+            _guard.Agent.isStopped = true;
+            _guard.ChangeState(_guard.lookAroundState);
+
         }
     }
 
     public override void OnExit()
     {
-
+        _guard.Agent.isStopped = false;
         Debug.Log("Exiting Searching State");
 
     }

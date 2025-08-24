@@ -7,7 +7,19 @@ public class OnAttackStateExit : StateMachineBehaviour
         GuardAI guard = animator.GetComponentInParent<GuardAI>();
         if (guard != null)
         {
-            guard.ChangeState(guard.chaseState, true);
+            if (guard != null)
+            {
+                if (guard.IsDead)
+                {
+                    return;
+                }
+
+                if (guard.CurrentState is FallState || guard.CurrentState is SideHitState)
+                {
+                    return; 
+                }
+                guard.ChangeState(guard.chaseState, true);
+            }
         }
     }
 }

@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class ChaseState : GuardBaseState
 {
-    private const float REACTION_TIME_BEFORE_SEARCHING = 0.5f;
+    private const float REACTION_TIME_BEFORE_SEARCHING = 0.75f;
     public override int Priority => 50;
+    private float _timeLostPlayer = -1f;
     public ChaseState(GuardAI guard) : base(guard) { }
     public override void OnEnter()
     {
-        //_timeLostPlayer = -1f;
-        //_guard.Agent.enabled = true;
+        _timeLostPlayer = -1f;
         if (!_guard.Agent.enabled)
             _guard.Agent.enabled = true;
 
@@ -32,13 +32,26 @@ public class ChaseState : GuardBaseState
             return;
         }
 
-        if (!_guard.IsPlayerInSight())
+        if (_guard.IsPlayerInSight())
         {
-            _guard.LastKnownPlayerPosition = _guard.PlayerTransform.position;
-            _guard.ChangeState(_guard.alertState, true);
-            return;
+            _timeLostPlayer = -1f;
+            AlertManager.ReportPlayerSeen();
+            _guard.Agent.SetDestination(_guard.PlayerTransform.position);
         }
-
+        else
+        {
+            if (_timeLostPlayer < 0f)
+            {
+                _timeLostPlayer = Time.time;
+                _guard.Agent.SetDestination(_guard.PlayerTransform.position);
+            }
+            else if (Time.time - _timeLostPlayer > REACTION_TIME_BEFORE_SEARCHING)
+            {
+                _guard.LastKnownPlayerPosition = _guard.PlayerTransform.position;
+                _guard.ChangeState(_guard.alertState, true);
+                return;
+            }
+        }
         float distanceToPlayer = Vector3.Distance(_guard.transform.position, _guard.PlayerTransform.position);
         if (distanceToPlayer < _guard.CatchDistance)
         {

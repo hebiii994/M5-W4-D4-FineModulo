@@ -21,7 +21,7 @@ public class AttackState : GuardBaseState
 
     public override void OnUpdate()
     {
-
+        _guard.Agent.velocity = Vector3.zero;
     }
 
     public override void OnExit()

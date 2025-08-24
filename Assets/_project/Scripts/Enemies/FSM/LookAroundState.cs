@@ -22,11 +22,11 @@ public class LookAroundState : GuardBaseState
 
     public override void OnUpdate()
     {
-        //if (!AlertManager.IsAlertActive)
-        //{
-        //    _guard.ReturnToDefaultState();
-        //    return;
-        //}
+        if (!AlertManager.IsAlertActive)
+        {
+            _guard.ReturnToDefaultState();
+            return;
+        }
 
         if (_guard.IsPlayerInSight())
         {

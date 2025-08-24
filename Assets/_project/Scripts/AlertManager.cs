@@ -20,6 +20,7 @@ public static class AlertManager
 
     // Public properties
     public static bool IsAlertActive => AlertTimer > 0;
+    public static Vector3 SharedLastKnownPlayerPosition { get; private set; }
 
     // Private variables
     private static float _lastTimePlayerWasSeen;
@@ -57,6 +58,7 @@ public static class AlertManager
         _lastTimePlayerWasSeen = Time.time;
     }
 
+
     public static void RegisterChaser(GuardAI guard)
     {
         if (!_activeChasers.Contains(guard))
@@ -80,12 +82,13 @@ public static class AlertManager
         {
             _lastTimePlayerWasSeen = Time.time;
         }
+        AlertTimer = ALERT_DURATION;
     }
 
     public static void BroadcastAlert(Vector3 position)
     {
+        SharedLastKnownPlayerPosition = position;
         TriggerAlert();
-
         OnAlertPositionBroadcast?.Invoke(position);
     }
 

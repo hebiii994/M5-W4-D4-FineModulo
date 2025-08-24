@@ -10,19 +10,49 @@ public class VisionConeRenderer : MonoBehaviour
 
     public float ViewRadius;
     public float ViewAngle;
-    void Start()
+    void Awake()
     {
         if (_lineRenderer == null)
         {
             _lineRenderer = GetComponent<LineRenderer>();
         }
-        _lineRenderer.positionCount = _segments + 1;
     }
 
-   
+
+    private void OnEnable()
+    {
+        if (DebugManager.Instance != null)
+        {
+            DebugManager.Instance.RegisterCone(this);
+            ToggleRenderer(DebugManager.Instance.IsDebugModeEnabled);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (DebugManager.Instance != null)
+        {
+            DebugManager.Instance.UnregisterCone(this);
+        }
+    }
+
+    public void ToggleRenderer(bool isEnabled)
+    {
+        if (_lineRenderer != null)
+        {
+            _lineRenderer.enabled = isEnabled;
+        }
+    }
+    void Start()
+    {
+        _lineRenderer.positionCount = _segments + 1;
+    }
     void Update()
     {
-        DrawCone();
+        if (_lineRenderer != null && _lineRenderer.enabled)
+        {
+            DrawCone();
+        }
     }
 
     void DrawCone()

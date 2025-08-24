@@ -10,6 +10,7 @@ public class FallState : GuardBaseState
     {
         _guard.Agent.velocity = Vector3.zero;
         _guard.Agent.isStopped = true;
+        Debug.Log($"--- ENTER FALL STATE --- Posizione Agente: {_guard.Agent.nextPosition}, Posizione Transform: {_guard.transform.position}, Agente Attivo: {_guard.Agent.enabled}, Agente Stoppato: {_guard.Agent.isStopped}");
         //_guard.Agent.enabled = false;
     }
 

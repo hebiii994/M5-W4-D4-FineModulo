@@ -2,10 +2,8 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Xml;
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.SceneManagement;
 
 public class GuardAI : MonoBehaviour
 {
@@ -85,6 +83,7 @@ public class GuardAI : MonoBehaviour
     private GuardBaseState _currentState;
     private float _lastStateChangeTime;
     private const float STATE_TRANSITION_COOLDOWN = 0.1f;
+    public GuardBaseState CurrentState => _currentState;
 
     // public states
     public PatrolState patrolState;
@@ -293,8 +292,11 @@ public class GuardAI : MonoBehaviour
             LastKnownPlayerPosition = alertPosition;
 
             ChangeState(alertState);
+            Debug.Log($"{name} received alert! State={_currentState}, Priority={_currentState?.Priority}. PlayerInSight={IsPlayerInSight()}");
+
         }
-        Debug.Log($"{name} received an alert for position {alertPosition}. Current state is {_currentState.GetType().Name} with priority {_currentState.Priority}");
+        
+
     }
     public void BroadcastAlert()
     {
@@ -305,7 +307,7 @@ public class GuardAI : MonoBehaviour
     public void GetHit(int comboStep, int damageAmount)
     {
         if (_isDead) return;
-        if (_currentState == fallState ) return;
+        if (_currentState is FallState || _currentState is SideHitState || _currentState is GetUpState) return;
         AlertManager.TriggerAlert();
         _currentHealth -= damageAmount;
         Debug.Log("Vita della guardia rimasta: " + _currentHealth);
@@ -316,9 +318,15 @@ public class GuardAI : MonoBehaviour
             Animator.SetTrigger("Die");
             ChangeState(deadState);
         }
-        else
+
+        if (Agent != null) Agent.isStopped = true;
+
+        if (comboStep > 2)
         {
-            if (comboStep <= 2)
+            Debug.Log($"--- PRE-FALL --- Stato: {CurrentState.GetType().Name}, Posizione Agente: {Agent.nextPosition}, Posizione Transform: {transform.position}, Agente Attivo: {Agent.enabled}, Agente Stoppato: {Agent.isStopped}");
+        }
+
+        if (comboStep <= 2)
             {
                 Animator.SetInteger("HitType", 1);
                 ChangeState(sideHitState);
@@ -328,7 +336,7 @@ public class GuardAI : MonoBehaviour
                 Animator.SetInteger("HitType", 2);
                 ChangeState(fallState);
             }
-        }
+        
         
         Debug.Log("<color=orange>GUARDIA DEBUG: Colpito! Ricevuto comboStep = " + comboStep + "</color>", this);
 
@@ -378,10 +386,10 @@ public class GuardAI : MonoBehaviour
         {
             Debug.Log($"<color=lightblue>TRIGGER DEBUG:</color> È un rumore! Lo stato attuale della guardia è: {_currentState}", gameObject);
 
-            if (_currentState == searchingState || _currentState == chaseState || _currentState == fallState || _currentState == sideHitState || _currentState == attackState)
+            if (_currentState is SearchingState || _currentState is ChaseState || _currentState is FallState || _currentState is SideHitState || _currentState is AttackState || _currentState is GetUpState)
             {
                 Debug.Log("<color=orange>TRIGGER DEBUG:</color> Guardia già in stato attivo. Rumore ignorato.", gameObject);
-                return; 
+                return;
             }
 
             Debug.Log("<color=green>TRIGGER DEBUG:</color> Guardia in stato tranquillo, REAGISCO al rumore!", gameObject);
